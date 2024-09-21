@@ -1,4 +1,4 @@
-const InitConnection = require('../db')
+const InitConnection = require('./db')
 const log_err = require('../log_err')
 
 function processPlate(plate) {
