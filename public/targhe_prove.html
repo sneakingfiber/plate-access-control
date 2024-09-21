@@ -52,12 +52,12 @@
             <div class="mb-3">
                 <label for="name" class="form-label">Nome</label>
                 <input type="text" class="form-control" name="name" id="name" aria-describedby="namehelp" required>
-                <div id="namehelp" class="form-text"></div>
+                <div id="namehelp" class="form-text" style="color: red;" ></div>
             </div>
             <div class="mb-3">
                 <label for="plate" class="form-label">Numero Targa</label>
                 <input type="text" class="form-control" name="plate" id="plate" aria-describedby="platehelp" required>
-                <div id="platehelp" class="form-text"></div>
+                <div id="platehelp" class="form-text" style="color: red;"></div>
             </div>
           
             <div class="mb-3">
@@ -233,13 +233,27 @@
             }
         }
         //compilazione colonnina necessaria per l'invio del modulo
-        function validateForm() {
+    function validateForm() {
+        var name = document.getElementById('name').value;
+        var plate = document.getElementById('plate').value;
         var selectedCar = document.getElementById('selectedCar').value;
+        if (plate.length > 10) {
+        errorMessage = 'La targa non può avere più di 10 caratteri.';
+        document.getElementById('platehelp').innerText = errorMessage;
+        return false;
+        }
+        else{ document.getElementById('platehelp').innerText = ''; }
+        if (name.length > 20) {
+        errorMessage = 'Il nome non può avere più di 20 caratteri.';
+        document.getElementById('namehelp').innerText = errorMessage;
+        return false;
+        }
+        else{ document.getElementById('namehelp').innerText = ''; }
         if (!selectedCar) {
             alert('Seleziona una colonnina prima di inviare il modulo.');
-            return false; // Blocca l'invio del modulo
+            return false; // blocca l'invio del modulo
         }
-        return true; // Consente l'invio del modulo
+        return true; // consente l'invio del modulo
         }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -251,14 +265,6 @@
         document.getElementById('data_partenza').addEventListener('input',sendAjaxRequest);
         
     });
-
-    /*^$(document).ready(function() {
-        $('#data_partenza').on('input', function() {
-            if ($('#data_partenza').val() && $('#data_arrivo').val()) {
-                sendAjaxRequest();
-            }
-        });
-    });*/
    </script>
 
   </body>
