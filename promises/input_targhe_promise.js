@@ -25,7 +25,7 @@ async function input_targhe(){
     }
     //else...
     const insertQuery = `INSERT INTO veicoli (Nome, Targa, Inizio, Fine, Colonnine) VALUES (${name}, ${plate}, ${data_arrivo}, ${data_partenza}, ${selectedCar})`;
-    const result2 = await connection.execute(insertQuery);
+    await connection.execute(insertQuery);
     if(err){
         console.error('Errore nel controllo della targa nel database:', err);
         res.status(500).send('Errore nel controllo della targa nel database.');
@@ -42,3 +42,4 @@ async function input_targhe(){
     }
 
 }
+module.exports = { input_targhe };
