@@ -1,5 +1,5 @@
 const InitConnection = require('./db')
-const log_err = require('../log_err')
+const log_err = require('./log_err')
 
 function processPlate(plate) {
     //Remove special chars and put every letter in uppercase
