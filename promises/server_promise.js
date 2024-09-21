@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { check_posti } = require('./check_posti_promise');
-const { input_targhe } = require('./input_targhe_promise');
+const { check_posti } = require('./check_posti');
+const { input_targhe } = require('./input_targhe');
 const app = express();
 const port = 3000; //server listening on this port
 app.use(bodyParser.json());

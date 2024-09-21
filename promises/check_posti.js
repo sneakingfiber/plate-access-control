@@ -1,5 +1,5 @@
-const InitConnection = require('./db')
-const log_err = require('./log_err')
+const InitConnection = require('../db')
+const log_err = require('../log_err')
 
 async function check_posti(req, res){
     try{

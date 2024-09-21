@@ -1,5 +1,5 @@
 const mysql = require('mysql2/promise')
-const log_err = require('./log_err')
+const log_err = require('../log_err')
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //estabilish a connection with the DB
