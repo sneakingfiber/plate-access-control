@@ -40,3 +40,5 @@ function sendEmail(err_message) {
       }
     });
   }
+
+  module.exports = log_err;
