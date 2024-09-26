@@ -1,7 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { check_posti } = require('./check_posti');
+const { check_posti_modal } = require('./check_posti_modal');
 const { input_targhe } = require('./input_targhe');
+const { lista } = require('./lista');
+const { delete_targhe } = require('./delete_targhe');
+const { change_targhe } = require('./change_targhe');
 const app = express();
 const port = 3000; //server listening on this port
 app.use(bodyParser.json());
@@ -16,6 +20,14 @@ app.post('/check_posti', check_posti );
 
 //ENDPOINT input targhe/////////////////////////////////////////////////////////////////////////////////////////////
 app.post('/input_targhe', input_targhe);
+//ENDPOINT check_posti modal /////////////////////////////////////////////////////////////////////////////////////////////
+app.post('/check_posti_modal', check_posti_modal);
+// ENDPOINT list targhe db  /////////////////////////////////////////////////////////////////////////////////////////////////
+app.post('/lista', lista);
+// ENDPOINT modifica targhe db  /////////////////////////////////////////////////////////////////////////////////////////////////
+app.post('/change_targhe', change_targhe);
+// ENDPOINT modifica targhe db  /////////////////////////////////////////////////////////////////////////////////////////////////
+app.post('/delete_targhe', delete_targhe);
 // Mostra la home  /////////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/targhe_prove.html');

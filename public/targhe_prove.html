@@ -41,11 +41,46 @@
           pointer-events: none; /* Disabilita i click sulle colonnine non disponibili */
         }
         .available {
-          opacity: 1; /* Opacità ridotta per le colonnine non disponibili */
+          opacity: 1; 
+        }
+        /* Navbar verticale */
+        .navbar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: yellow;
+            padding-top: 20px;
+            width: 100px;
+        }
+        .navbar a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 16px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+        }
+        .icon {
+            width: 40px;
+            height: auto;
+        }
+        .content {
+            margin-left: 120px; /* Spazio per la navbar */
+            padding: 20px;
         }
     </style>
   </head>
   <body>
+        <!-- Navbar verticale con icone -->
+        <div class="navbar">
+            <a href="targhe_prove.html"><img src="home.png" alt="Icon 1" class="icon"></a>
+            <a href="list.html"><img src="list_icon.png" alt="Icon 2" class="icon"></a>
+            <a href=""><img src="charging-station.png" alt="Icon 3" class="icon"></a>
+        </div>
     <div class="container">
         <form action="../input_targhe" method="post" id="myForm" onsubmit="return validateForm();">
             <img src="controllo_accessi_logo.png" alt="Immagine 1" class="image">

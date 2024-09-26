@@ -27,6 +27,10 @@ async function input_targhe(req,res){
         console.log('Targa inserita con successo.');
         res.redirect('/loading_success_plate.html');
     }
+    else{
+        console.log('Errore di comunicazione con il DB.')
+        res.status(500).json({ error: 'Errore nel database. Riprovare più tardi.' });
+    }
     }
     catch(err){
         console.log(err);

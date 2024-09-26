@@ -1,17 +1,22 @@
 const InitConnection = require('./db')
 const log_err = require('./log_err')
 let connection;
-async function check_posti(req, res){
+async function check_posti_modal(req, res){
     try{
     connection = await InitConnection();
     console.log('checking free spots...')
-    const { data_arrivo, data_partenza } = req.body;
-    const sql=`SELECT Colonnine FROM veicoli WHERE ('${data_arrivo}' BETWEEN Inizio AND Fine)
-    OR ('${data_partenza}' BETWEEN Inizio AND Fine)`;
-    //AND Targa != '${plate}'
+    const { plate, data_arrivo, data_partenza } = req.body;
+    console.log(plate);
+    //const sql=`SELECT Colonnine FROM veicoli WHERE Targa !='${plate}' AND ('${data_arrivo}' BETWEEN Inizio AND Fine)
+    //OR ('${data_partenza}' BETWEEN Inizio AND Fine)  `;
+    const sql= `SELECT Colonnine 
+    FROM veicoli 
+    WHERE Targa != '${plate}' 
+    AND (('${data_arrivo}' BETWEEN Inizio AND Fine) OR ('${data_partenza}' BETWEEN Inizio AND Fine))`;
     const result = await connection.execute(sql);
         if (result[0].length > 0) {
             const output = result[0].map(row => row.Colonnine);
+            console.log(output)
             res.json(output);
         } 
         else{
@@ -29,5 +34,4 @@ async function check_posti(req, res){
         }
     }
     }
-module.exports = {check_posti};
-    
+module.exports = {check_posti_modal};

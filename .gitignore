@@ -29,7 +29,7 @@ coverage
 # Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 .DS_Store
-
+errors_log.txt
 
 # Bower dependency directory (https://bower.io/)
 bower_components
