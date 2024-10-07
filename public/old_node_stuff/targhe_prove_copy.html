@@ -1,161 +1,201 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <title>Inserimento targhe area camper</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Controllo accessi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- FontAwesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        body{
-        background-image: url('background.jpg');
-        background-size: cover; /* Imposta l'immagine di sfondo per coprire l'intera area */
-        background-repeat: no-repeat;
+        body {
+            background-image: url('background.jpg');
+            background-size: cover; /* Imposta l'immagine di sfondo per coprire l'intera area */
+            background-repeat: no-repeat;
+            font-family: 'Roboto', sans-serif;
         }
-        /* Stile per il contenitore del form */
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Altezza pari alla viewport */
-        }
-        
-        /* Stile per il form */
-        form {
-            border: 2px solid #ccc; /* Bordo grigio */
-            padding: 20px; /* Spazio interno del form */
-            border-radius: 10px; /* Bordo arrotondato */
-            background-color: #f9f9f9; /* Colore di sfondo */
-            width: 100%; /* Larghezza massima */
-            max-width: 400px; /* Larghezza massima del form */
-        }
-        .car-icon{
-          height: 40px;
-          width: auto;
-        }
-        .car-icon.selected {
-            border: 2px solid gray; /* Cambia lo stile per indicare selezione */
-        }
-        .unavailable {
-          opacity: 0.3; /* Opacità ridotta per le colonnine non disponibili */
-          pointer-events: none; /* Disabilita i click sulle colonnine non disponibili */
-        }
-        .available {
-          opacity: 1; 
-        }
-        /* Navbar verticale */
+
+        /* Miglioramento della navbar */
         .navbar {
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: yellow;
+            background-color: #f8f9fa;
             padding-top: 20px;
             width: 100px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
         .navbar a {
             display: block;
-            color: black;
+            color: #343a40;
             text-align: center;
             padding: 16px;
             text-decoration: none;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease;
         }
         .navbar a:hover {
-            background-color: #ddd;
+            background-color: #e9ecef;
         }
         .icon {
             width: 40px;
             height: auto;
         }
-        .content {
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Altezza pari alla viewport */
             margin-left: 120px; /* Spazio per la navbar */
+        }
+        
+        /* Stile per il form */
+        form {
+            border: 2px solid #ccc; /* Bordo grigio */
             padding: 20px;
+            border-radius: 15px; /* Bordo arrotondato */
+            background-color: #f9f9f9; /* Colore di sfondo */
+            width: 100%;
+            max-width: 400px; /* Larghezza massima del form */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Aggiunta di un'ombra leggera */
+        }
+
+        /* Pulsanti migliorati */
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Stile delle icone delle colonnine */
+        .car-icon {
+            height: 40px;
+            width: auto;
+            margin: 2px;
+        }
+        .car-icon.selected {
+            border: 2px solid gray; /* Cambia lo stile per indicare selezione */
+        }
+        .unavailable {
+            opacity: 0.3; /* Opacità ridotta per le colonnine non disponibili */
+            pointer-events: none; /* Disabilita i click sulle colonnine non disponibili */
+        }
+        .available {
+            opacity: 1;
+        }
+
+        /* Effetto hover sulle icone delle colonnine */
+        .car-icon:hover {
+            cursor: pointer;
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+        
+        /* Responsività */
+        @media (max-width: 768px) {
+            .form-control {
+                font-size: 14px; /* Riduce la dimensione del testo sui dispositivi mobili */
+            }
         }
     </style>
-  </head>
-  <body>
-        <!-- Navbar verticale con icone -->
-        <div class="navbar">
-            <a href="targhe_prove.html"><img src="home.png" alt="Icon 1" class="icon"></a>
-            <a href="list.html"><img src="list_icon.png" alt="Icon 2" class="icon"></a>
-            <a href=""><img src="charging-station.png" alt="Icon 3" class="icon"></a>
-        </div>
+</head>
+<body>
+    <!-- Navbar verticale con icone -->
+    <div class="navbar">
+        <a href="targhe.html"><img src="home.png" alt="Icon 1" class="icon"></a>
+        <a href="list.html"><img src="list_icon.png" alt="Icon 2" class="icon"></a>
+        <a href="colonnine.html"><img src="charging-station.png" alt="Icon 3" class="icon"></a>
+    </div>
+
     <div class="container">
-        <form action="../input_targhe" method="post" id="myForm" onsubmit="return validateForm();">
-            <img src="controllo_accessi_logo.png" alt="Immagine 1" class="image">
+        <form action="../input_targhe" method="post" id="#myForm" onsubmit="return validateForm();">
+            <img src="controllo_accessi_logo.png" alt="Immagine 1" class="image mb-4">
+            
             <div class="mb-3">
                 <label for="name" class="form-label">Nome</label>
                 <input type="text" class="form-control" name="name" id="name" aria-describedby="namehelp" required>
-                <div id="namehelp" class="form-text" style="color: red;" ></div>
+                <div id="namehelp" class="form-text text-danger"></div>
             </div>
+
             <div class="mb-3">
                 <label for="plate" class="form-label">Numero Targa</label>
                 <input type="text" class="form-control" name="plate" id="plate" aria-describedby="platehelp" required>
-                <div id="platehelp" class="form-text" style="color: red;"></div>
+                <div id="platehelp" class="form-text text-danger"></div>
             </div>
-          
+
             <div class="mb-3">
                 <label for="data_arrivo">Data di arrivo:</label>
                 <input type="date" class="form-control" id="data_arrivo" name="data_arrivo" required>
             </div>
-            
+
             <div class="mb-3">
                 <label for="data_partenza">Data di partenza:</label>
                 <input type="date" class="form-control" id="data_partenza" name="data_partenza" required>
             </div>
-            <div id="dateError" style="color: red;"></div>
-            <!--DIV COLONNINE-->
-            <div id="risultati_query"></div>
-            <label for="selectedCar" class="form-label">Colonnina di ricarica:</label>    
+            <div id="dateError" class="text-danger"></div>
+
+            <!-- Sezione colonnine -->
             <div class="mb-3">
-                  <div class="d-flex">
+                <label for="selectedCar" class="form-label">Colonnina di ricarica:</label>
+                <div class="d-flex flex-wrap">
+                    <div class="car-icon available" onclick="selectCar(1)">
+                        <img src="car_icon.png" alt="Car 1" class="car-icon">
+                        <span class="icon-number">1</span>
+                    </div>
+                    <div class="car-icon available" onclick="selectCar(2)">
+                        <img src="car_icon.png" alt="Car 2" class="car-icon">
+                        <span class="icon-number">2</span>
+                    </div>
                     <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 1" class="car-icon" onclick="selectCar(1)">
-                      <span class="icon-number">1</span>
+                        <img src="car_icon.png" alt="Car 3" class="car-icon" onclick="selectCar(3)">
+                        <span class="icon-number">3</span>
                       </div>
                       <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 2" class="car-icon" onclick="selectCar(2)">
-                      <span class="icon-number">2</span>
-                    </div>
-                    <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 3" class="car-icon" onclick="selectCar(3)">
-                      <span class="icon-number">3</span>
-                    </div>
-                    <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 4" class="car-icon" onclick="selectCar(4)">
-                      <span class="icon-number">4</span>
-                    </div>
-                    <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 5" class="car-icon" onclick="selectCar(5)">
-                      <span class="icon-number">5</span>
-                    </div>
-                    <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 6" class="car-icon" onclick="selectCar(6)">
-                      <span class="icon-number">6</span>
-                    </div>
-                    <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 7" class="car-icon" onclick="selectCar(7)">
-                      <span class="icon-number">7</span>
-                    </div>
-                    <div class="car-icon" data-disponibile="true">
-                      <img src="car_icon.png" alt="Car 8" class="car-icon" onclick="selectCar(8)">
-                      <span class="icon-number">8</span>
-                    </div>
-                    <input type="hidden" id="selectedCar" name="selectedCar" required>
-                    </div>
-                  
-              </div>
-          <div>
-            <br>
-          </div>
-          <input type="submit" class="btn btn-primary"> 
+                        <img src="car_icon.png" alt="Car 4" class="car-icon" onclick="selectCar(4)">
+                        <span class="icon-number">4</span>
+                      </div>
+                      <div class="car-icon" data-disponibile="true">
+                        <img src="car_icon.png" alt="Car 5" class="car-icon" onclick="selectCar(5)">
+                        <span class="icon-number">5</span>
+                      </div>
+                      <div class="car-icon" data-disponibile="true">
+                        <img src="car_icon.png" alt="Car 6" class="car-icon" onclick="selectCar(6)">
+                        <span class="icon-number">6</span>
+                      </div>
+                      <div class="car-icon" data-disponibile="true">
+                        <img src="car_icon.png" alt="Car 7" class="car-icon" onclick="selectCar(7)">
+                        <span class="icon-number">7</span>
+                      </div>
+                      <div class="car-icon" data-disponibile="true">
+                        <img src="car_icon.png" alt="Car 8" class="car-icon" onclick="selectCar(8)">
+                        <span class="icon-number">8</span>
+                      </div>
+                </div>
+                <input type="hidden" id="selectedCar" name="selectedCar" required>
+            </div>
+
+            <div id="carError" class="text-danger"></div>
+            
+            <input type="submit" class="btn btn-primary w-100" value="Invia">
         </form>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-   <script>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
 
     // Funzione per rimuovere la selezione delle colonnine quando si cambia la data
     function clearSelection() {
@@ -198,8 +238,6 @@
             }
         });
     }
-
-
 
     // Funzione per selezionare una colonnina
     function selectCar(carNumber) {
@@ -285,7 +323,8 @@
         }
         else{ document.getElementById('namehelp').innerText = ''; }
         if (!selectedCar) {
-            alert('Seleziona una colonnina prima di inviare il modulo.');
+            errorMessage = 'Selezionare una colonnina.';
+            document.getElementById('carError').innerText = errorMessage;
             return false; // blocca l'invio del modulo
         }
         return true; // consente l'invio del modulo

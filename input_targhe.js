@@ -1,5 +1,7 @@
-const InitConnection = require('./db')
-const log_err = require('./log_err')
+const {InitConnection} = require('./db')
+const {log_err} = require('./log_err')
+const {on_add} = require('./camera_functions');
+const config = require('./config.json');
 
 function processPlate(plate) {
     //Remove special chars and put every letter in uppercase
@@ -10,10 +12,11 @@ function processPlate(plate) {
 let connection;
 async function input_targhe(req,res){
     try{
+    const tableName = config.tableName;
     connection = await InitConnection();
     let { name, plate, data_arrivo, data_partenza, selectedCar } = req.body;
     plate = processPlate(plate);
-    const checkQuery = `SELECT Targa FROM veicoli WHERE Targa = '${plate}'`;
+    const checkQuery = `SELECT Targa FROM ${tableName} WHERE Targa = '${plate}'`;
     const result = await connection.execute(checkQuery);
     console.log(result);
     if (result[0].length > 0){
@@ -21,7 +24,7 @@ async function input_targhe(req,res){
         return;
     }
     //else...
-    const insertQuery = `INSERT INTO veicoli (Nome, Targa, Inizio, Fine, Colonnine) VALUES ('${name}', '${plate}', '${data_arrivo}', '${data_partenza}', '${selectedCar}')`;
+    const insertQuery = `INSERT INTO ${tableName} (Nome, Targa, Inizio, Fine, Colonnine) VALUES ('${name}', '${plate}', '${data_arrivo}', '${data_partenza}', '${selectedCar}')`;
     const result2 = await connection.execute(insertQuery);
     if(result2[0].affectedRows > 0){
         console.log('Targa inserita con successo.');
@@ -38,11 +41,14 @@ async function input_targhe(req,res){
         throw err;
     }
     finally {
+        
         if (connection) {
             await connection.end();  // close connection
-            console.log('DB connection closed')
+            console.log('DB connection closed');
+            console.log('adding plate')
+            await on_add();
         }
     }
-
+    
 }
 module.exports = { input_targhe };

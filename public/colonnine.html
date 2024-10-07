@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Controllo Colonnine Elettriche</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-image: url('background.jpg');
+            background-size: cover; /* Imposta l'immagine di sfondo per coprire l'intera area */
+            background-repeat: no-repeat;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Miglioramento della navbar */
+        .navbar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            width: 100px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar a {
+            display: block;
+            color: #343a40;
+            text-align: center;
+            padding: 16px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .navbar a:hover {
+            background-color: #e9ecef;
+        }
+        .parking-icon {
+            width: 40px;
+            height: auto;
+        }
+
+        .icon {
+            width: 40px;
+            height: auto;
+        }
+        .navbar a img {
+            transition: transform 0.2s ease; 
+        }
+
+        .navbar a img:hover {
+            transform: scale(1.2);
+        }
+
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+            margin-left: 120px; 
+        }
+        .icon-container {
+            display: flex;
+            justify-content: center; 
+            gap: 50px; 
+            flex-wrap: wrap; 
+            margin-top: 20px; 
+        }
+
+        .parking-icon {
+            width: 80px; /* Regola la dimensione delle icone */
+            height: auto;
+            cursor: pointer; /* Aggiunge un puntatore per l'interattività */
+            transition: transform 0.2s ease; /* Effetto di ingrandimento al passaggio del mouse */
+        }
+
+        .parking-icon:hover {
+            transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
+        }
+        .active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .inactive {
+            color: red;
+            font-weight: bold;
+        }
+        
+        /* Stile per il form */
+        form {
+            border: 2px solid #ccc; 
+            padding: 20px;
+            border-radius: 15px; /* Bordo arrotondato */
+            background-color: #f9f9f9; /* Colore di sfondo */
+            width: 100%;
+            max-width: 400px; /* Larghezza massima del form */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Aggiunta di un'ombra leggera */
+        }
+
+        /* Pulsanti migliorati */
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        
+        /* Responsività */
+        @media (max-width: 768px) {
+            .form-control {
+                font-size: 14px; /* Riduce la dimensione del testo sui dispositivi mobili */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar verticale con icone -->
+    <div class="navbar">
+        <a href="targhe.html"><img src="home.png" alt="Icon 1" class="icon"></a>
+        <a href="list.html"><img src="list_icon.png" alt="Icon 2" class="icon"></a>
+        <a href="colonnine.html"><img src="charging-station.png" alt="Icon 3" class="icon"></a>
+    </div>
+
+    <div class="content">
+        <h1>Stato Colonnine Elettriche</h1>
+        <div class="icon-container">
+            <!-- Icone per le colonnine -->
+            <div>
+                <img src="charging-station.png" alt="Colonnina 1" class="parking-icon" onclick="showInfo(1)">
+                <div class="info">1<br>Stato:</div> <div id="status_1" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 2" class="parking-icon" onclick="showInfo(2)">
+                <div class="info">2<br>Stato:</div> <div id="status_2" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 3" class="parking-icon" onclick="showInfo(3)">
+                <div class="info">3<br>Stato:</div> <div id="status_3" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 4" class="parking-icon" onclick="showInfo(4)">
+                <div class="info">4<br>Stato:</div> <div id="status_4" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 5" class="parking-icon" onclick="showInfo(5)">
+                <div class="info">5<br>Stato:</div> <div id="status_5" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 6" class="parking-icon" onclick="showInfo(6)">
+                <div class="info">6<br>Stato:</div> <div id="status_6" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 7" class="parking-icon" onclick="showInfo(7)">
+                <div class="info">7<br>Stato</div> <div id="status_7" style="color: blue;"></div>
+            </div>
+            <div>
+                <img src="charging-station.png" alt="Colonnina 8" class="parking-icon" onclick="showInfo(8)">
+                <div class="info">8<br>Status:</div> <div id="status_8" style="color: blue;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*function showInfo(id, data) {
+            alert('Informazioni sulla colonnina ' + id + data);
+            document.getElementById('status').innerText = data;
+        }*/
+    $(document).ready(fetchData);
+    function fetchData() {
+             $.ajax({
+                url: '/charging', 
+                success: function(data) {
+                    console.log('data retrieved:',data);
+                    Object.entries(data).forEach(([port, status], index) => {
+                    $('#status_' + (index + 1)).text(status);
+                    });
+                    },
+                error: function(err){console.error('Error while retrieving data.',err);}
+                })        
+        
+    };
+    
+    setInterval(function(){fetchData;console.log('data request...');},1000);
+       
+    
+    </script>
+</body>
+</html>

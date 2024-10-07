@@ -1,15 +1,19 @@
 const InitConnection = require('./db')
 const log_err = require('./log_err')
+const config = require('./config.json');
 
 let connection;
 async function lista (req,res){
     try{
+    const tableName = config.tableName;
     connection = await InitConnection();
-    const sql = `SELECT * FROM veicoli `;
+    const sql = `SELECT * FROM ${tableName} `;
     const result = await connection.execute(sql);
-    console.log(result[0]);
+    
+    
     if(result[0].length > 0){
         const output = await result[0].map(row => row);  // Restituisce tutte le colonne di ogni riga
+        console.log('List retrieved');
         res.json(output);
     }
     }

@@ -1,6 +1,10 @@
 const moment = require('moment');
 const fs = require('fs');
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer');
+const config = require('./config.json');
+const email_address = config.emailaddress;
+const receiver = config.emailreceiver;
+const email_pw = config.emailpassword;
 
 function log_err(err_message){
     try{
@@ -20,15 +24,15 @@ function sendEmail(err_message) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'your_email@gmail.com',
-        pass: 'your_password',
+        user: email_address,
+        pass: email_pw,
       },
     });
   
     const mailOptions = {
-      from: 'your_email@gmail.com',
-      to: 'recipient_email@gmail.com',
-      subject: 'Error Notification',
+      from: email_address,
+      to: receiver,
+      subject: 'ParkingLot Error Notification',
       text: err_message,
     };
   

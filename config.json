@@ -1,0 +1,18 @@
+{
+    
+    "dbHost": "localhost",
+    "dbName": "nomi_e_targhe",
+    "tableName": "veicoli",
+    "dbUser": "root",
+    "dbPassword": "",
+    "ip1": "CHANGE_ME",
+    "ip2": "CHANGE_ME",
+    "ip_relay":"CHANGE_ME",
+    "cameraPassword": "CHANGE_ME",
+    "emailaddress":"CHANGE_ME",
+    "emailreceiver":"CHANGE_ME",
+    "emailpassword":"CHANGE_ME",
+    "smtp_port":"25"
+
+
+}

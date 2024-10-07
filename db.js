@@ -1,15 +1,20 @@
 const mysql = require('mysql2/promise')
+const config  = require('./config.json');
 const log_err = require('./log_err')
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //estabilish a connection with the DB
 async function InitConnection(){
     try{
+        const dbHost = config.dbHost;
+        const dbName = config.dbName;
+        const dbUser = config.dbUser;
+        const dbPassword = config.dbPassword;
 const connection = await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'nomi_e_targhe',
+    host: dbHost,
+    user: dbUser,
+    password: dbPassword,
+    database: dbName,
     });
     console.log('DB connection estabilished')
     return connection;
