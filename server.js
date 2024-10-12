@@ -8,6 +8,7 @@ const { lista } = require('./lista');
 const { delete_targhe } = require('./delete_targhe');
 const { change_targhe } = require('./change_targhe');
 const { checkactive } = require('./charging');
+const {change_state} = require('./change_state');
 const { config } = require('./config.json');
 const {daily_functions} = require('./camera_functions');
 const app = express();
@@ -33,6 +34,8 @@ app.post('/change_targhe', change_targhe);
 app.post('/delete_targhe', delete_targhe);
 // ENDPOINT fetch dati colonnine  //////////////////////////////////////////////////////////////////////////////////
 app.get('/charging', checkactive);
+// ENDPOINT on/off stazioni di ricarica ////////////////////////////////////////////////////////////////////////////
+app.post('/change_state', change_state);
 // Mostra la home  /////////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/targhe.html');
@@ -40,8 +43,9 @@ app.get('/', (req, res) => {
 // Avvia il server su una specifica porta///////////////////////////////////////////////////////////////////////////
 app.listen(port, () => {
     console.log(`Server avviato su http://localhost:${port}`);
+    daily_functions(config);
     // Esegui la funzione ogni giorno 
-    cron.schedule('29 12 * * *', async () => {
+    cron.schedule('10 23 * * *', async () => {
       try {
           console.log('Esecuzione di daily_functions ...');
           await daily_functions(config);

@@ -12,7 +12,7 @@
     <style>
         body {
             background-image: url('background.jpg');
-            background-size: cover; /* Imposta l'immagine di sfondo per coprire l'intera area */
+            background-size: cover;
             background-repeat: no-repeat;
             font-family: 'Roboto', sans-serif;
         }
@@ -83,13 +83,32 @@
             transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
         }
         .active {
-            color: green;
-            font-weight: bold;
+        background-color: green;
+        color: whitesmoke;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 8px; /* Bordo arrotondato */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Ombra leggera */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transizione fluida */
+        }
+
+        .active:hover {
+            transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5); /* Ombra più intensa al passaggio del mouse */
         }
 
         .inactive {
-            color: red;
+            background-color: rgb(99, 4, 4);
+            color: whitesmoke;
             font-weight: bold;
+            padding: 10px;
+            border-radius: 8px; /* Bordo arrotondato */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Ombra leggera */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transizione fluida */
+        }
+        .inactive:hover {
+            transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5); /* Ombra più intensa al passaggio del mouse */
         }
         
         /* Stile per il form */
@@ -131,67 +150,144 @@
     </div>
 
     <div class="content">
-        <h1>Stato Colonnine Elettriche</h1>
+        <h1>Stato Postazioni di ricarica</h1>
         <div class="icon-container">
             <!-- Icone per le colonnine -->
             <div>
                 <img src="charging-station.png" alt="Colonnina 1" class="parking-icon" onclick="showInfo(1)">
-                <div class="info">1<br>Stato:</div> <div id="status_1" style="color: blue;"></div>
+                <div class="info">1<br>Stato:</div> <div id="status_1" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 2" class="parking-icon" onclick="showInfo(2)">
-                <div class="info">2<br>Stato:</div> <div id="status_2" style="color: blue;"></div>
+                <div class="info">2<br>Stato:</div> <div id="status_2" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 3" class="parking-icon" onclick="showInfo(3)">
-                <div class="info">3<br>Stato:</div> <div id="status_3" style="color: blue;"></div>
+                <div class="info">3<br>Stato:</div> <div id="status_3" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 4" class="parking-icon" onclick="showInfo(4)">
-                <div class="info">4<br>Stato:</div> <div id="status_4" style="color: blue;"></div>
+                <div class="info">4<br>Stato:</div> <div id="status_4" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 5" class="parking-icon" onclick="showInfo(5)">
-                <div class="info">5<br>Stato:</div> <div id="status_5" style="color: blue;"></div>
+                <div class="info">5<br>Stato:</div> <div id="status_5" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 6" class="parking-icon" onclick="showInfo(6)">
-                <div class="info">6<br>Stato:</div> <div id="status_6" style="color: blue;"></div>
+                <div class="info">6<br>Stato:</div> <div id="status_6" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 7" class="parking-icon" onclick="showInfo(7)">
-                <div class="info">7<br>Stato</div> <div id="status_7" style="color: blue;"></div>
+                <div class="info">7<br>Stato</div> <div id="status_7" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 8" class="parking-icon" onclick="showInfo(8)">
-                <div class="info">8<br>Status:</div> <div id="status_8" style="color: blue;"></div>
+                <div class="info">8<br>Status:</div> <div id="status_8" style=""></div>
             </div>
         </div>
     </div>
 
     <script>
-        /*function showInfo(id, data) {
-            alert('Informazioni sulla colonnina ' + id + data);
-            document.getElementById('status').innerText = data;
-        }*/
+     
     $(document).ready(fetchData);
     function fetchData() {
-             $.ajax({
-                url: '/charging', 
-                success: function(data) {
-                    console.log('data retrieved:',data);
-                    Object.entries(data).forEach(([port, status], index) => {
-                    $('#status_' + (index + 1)).text(status);
-                    });
-                    },
-                error: function(err){console.error('Error while retrieving data.',err);}
-                })        
+    $.ajax({
+        url: '/charging',
+        success: function(data) {
+            console.log('Data retrieved:', data);
+            Object.entries(data).forEach(([port, status], index) => {
+                let statusElement = $('#status_' + (index + 1));
+                statusElement.text(status);
+                statusElement.removeClass('active inactive');
+                if (status === 'active') {
+                    statusElement.addClass('active');
+                } else if (status === 'inactive') {
+                    statusElement.addClass('inactive');
+                }
+            });
+        },
+        error: function(err) {
+            console.error('Error retrieving data:', err);
+        }
+    });
+}
+    function stateRequest(id){
+        $.ajax({
+            type: 'POST',
+            url: '/change_state',
+            data: { id: id },
+            success: function(response){
+                // Ignora la risposta se non è necessaria
+                console.log('State change request sent successfully.');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Request failed:', textStatus, errorThrown); // Gestione degli errori
+            }
+            })
+        }                                                          
+
+    setInterval(function(){fetchData();console.log('data request...');},6000);
+
+    function showInfo(id) {
+        console.log('Colonnina selezionata:', id);
+        const modal = new bootstrap.Modal(document.getElementById('editModal'));
+        document.getElementById("editModalLabel").innerHTML = "Controllo Postazione: " + id +"";
+        const changeStateButton = document.querySelector('.btn-secondary'); // Seleziona il pulsante
+        changeStateButton.setAttribute('data-id', id); // Imposta data-id
+        modal.show(); 
+    }
+    function changeState(button) {
+        const id = button.dataset.id; // Recupera l'ID della colonnina
+        console.log('Cambiando stato per colonnina:', id);
         
-    };
-    
-    setInterval(function(){fetchData;console.log('data request...');},1000);
-       
+        // Mostra lo spinner
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.style.display = 'inline-block'; // Mostra lo spinner
+
+        // Disabilita il pulsante "Cambia stato" per prevenire ulteriori clic
+        button.disabled = true; 
+
+        // Nascondi il pulsante "Annulla" per prevenire la chiusura del modal
+        document.querySelector('.btn-secondary[data-bs-dismiss="modal"]').style.display = 'none';
+
+        // Simula un caricamento di 3 secondi
+        setTimeout(() => {
+            // Nascondi lo spinner
+            spinner.style.display = 'none';
+            button.disabled = false; 
+            document.querySelector('.btn-secondary[data-bs-dismiss="modal"]').style.display = 'inline-block';
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            modal.hide();
+
+            stateRequest(id);
+            console.log('Stato cambiato per la colonnina:', id);
+        }, 3000); 
+    }
     
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+    <!--Modal accensione spegnimento colonnine-->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editModalLabel"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <button type="button" class="btn btn-secondary w-100" style="background-color: orange; color: black" onclick="changeState(this)" data-id="">Cambia stato <i class="fas fa-exclamation-triangle"></i> <i class="fas fa-bolt"></i></button>
+            </div>
+            <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none; position: absolute; top: 80%; left: 45%;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: red;">Annulla</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
 </body>
 </html>

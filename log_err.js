@@ -16,22 +16,25 @@ function log_err(err_message){
           sendEmail(form_err);
     }
     catch(error){
-
+      console.error(error);
     }
 }
-
+/*
 function sendEmail(err_message) {
+  try{
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: config.host,
+      port: config.smtp_port,
+      secure: false,
       auth: {
-        user: email_address,
-        pass: email_pw,
+        user: config.emailaddress,
+        pass: config.emailpassword,
       },
     });
   
     const mailOptions = {
-      from: email_address,
-      to: receiver,
+      from: config.emailaddress,
+      to: config.emailreceiver,
       subject: 'ParkingLot Error Notification',
       text: err_message,
     };
@@ -42,7 +45,10 @@ function sendEmail(err_message) {
       } else {
         console.log('Email sent: ' + info.response);
       }
-    });
+    });}
+    catch(err){
+      console.error(err);
+    }
   }
-
+*/
   module.exports = log_err;
