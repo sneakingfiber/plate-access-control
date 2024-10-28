@@ -2,7 +2,7 @@
 function fetchData() {
     $.ajax({
         type: 'POST',
-        url: '/lista',
+        url: '../endpoints/lista',
         success: function (response) {
             var dataList = $('#dataList');
             dataList.empty();
@@ -153,7 +153,7 @@ function sendAjaxRequest() {
 
     $.ajax({
         type: 'POST',
-        url: '/check_posti_modal',
+        url: '../endpoints/check_posti_modal',
         contentType: 'application/json',
         data: JSON.stringify({ plate: plate_tmp, data_arrivo: start_tmp, data_partenza: end_tmp }),
         success: function (response) {
@@ -193,7 +193,7 @@ function sendDeleteRequest(plate) {
     console.log('sending delete request');
     $.ajax({
         type: 'POST',
-        url: '/delete_targhe',
+        url: '../endpoints/delete_targhe',
         contentType: 'application/json',
         data: JSON.stringify({ plate: plate_tmp }),
         success: function (response) {
@@ -218,7 +218,7 @@ function sendChangeRequest() {
 
     $.ajax({
         type: 'POST',
-        url: '/change_targhe',
+        url: '../endpoints/change_targhe',
         contentType: 'application/json',
         data: JSON.stringify({ name: name_tmp, plate: plate_tmp, data_arrivo: start_tmp, data_partenza: end_tmp, selectedCar: place }),
         success: function (response) {
