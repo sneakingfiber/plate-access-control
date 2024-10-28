@@ -1,16 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cron = require ('node-cron');
-const { check_posti } = require('./check_posti');
-const { check_posti_modal } = require('./check_posti_modal');
-const { input_targhe } = require('./input_targhe');
-const { lista } = require('./lista');
-const { delete_targhe } = require('./delete_targhe');
-const { change_targhe } = require('./change_targhe');
-const { checkactive } = require('./charging');
-const {change_state} = require('./change_state');
+const cron = require('node-cron');
+const { check_posti } = require('./endpoints/check_posti');
+const { check_posti_modal } = require('./endpoints/check_posti_modal');
+const { input_targhe } = require('./endpoints/input_targhe');
+const { lista } = require('./endpoints/lista');
+const { delete_targhe } = require('./endpoints/delete_targhe');
+const { change_targhe } = require('./endpoints/change_targhe');
+const { checkactive } = require('./endpoints/charging');
+const { change_state } = require('./endpoints/change_state');
+const { open_barrier } = require('./endpoints/open_barrier');
 const { config } = require('./config.json');
-const {daily_functions} = require('./camera_functions');
+const { daily_functions } = require('./camera_functions');
 const app = express();
 const port = 3000; //server listening on this port
 app.use(bodyParser.json());
@@ -21,38 +22,40 @@ app.use(express.static('public')); //definisci la cartella statica //middleware
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //ENDPOINT check_posti /////////////////////////////////////////////////////////////////////////////////////////////
-app.post('/check_posti', check_posti );
+app.post('/endpoints/check_posti', check_posti);
 //ENDPOINT input targhe/////////////////////////////////////////////////////////////////////////////////////////////
-app.post('/input_targhe', input_targhe);
+app.post('/endpoints/input_targhe', input_targhe);
 //ENDPOINT check_posti modal ///////////////////////////////////////////////////////////////////////////////////////
-app.post('/check_posti_modal', check_posti_modal);
+app.post('/endpoints/check_posti_modal', check_posti_modal);
 // ENDPOINT list targhe db  ////////////////////////////////////////////////////////////////////////////////////////
-app.post('/lista', lista);
+app.post('/endpoints/lista', lista);
 // ENDPOINT modifica targhe db  ////////////////////////////////////////////////////////////////////////////////////
-app.post('/change_targhe', change_targhe);
+app.post('/endpoints/change_targhe', change_targhe);
 // ENDPOINT elimina targhe db  ////////////////////////////////////////////////////////////////////////////////////
-app.post('/delete_targhe', delete_targhe);
+app.post('/endpoints/delete_targhe', delete_targhe);
 // ENDPOINT fetch dati colonnine  //////////////////////////////////////////////////////////////////////////////////
-app.get('/charging', checkactive);
+app.get('/endpoints/charging', checkactive);
 // ENDPOINT on/off stazioni di ricarica ////////////////////////////////////////////////////////////////////////////
-app.post('/change_state', change_state);
+app.post('/endpoints/change_state', change_state);
+// ENDPOINT apertura barriera  //////////////////////////////////////////////////////////////////////////////////
+app.get('/endpoints/open_barrier', open_barrier);
 // Mostra la home  /////////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/targhe.html');
-  });
+  res.sendFile(__dirname + '/public/targhe.html');
+});
 // Avvia il server su una specifica porta///////////////////////////////////////////////////////////////////////////
 app.listen(port, () => {
-    console.log(`Server avviato su http://localhost:${port}`);
-    daily_functions(config);
-    // Esegui la funzione ogni giorno 
-    cron.schedule('10 23 * * *', async () => {
-      try {
-          console.log('Esecuzione di daily_functions ...');
-          await daily_functions(config);
-          console.log('Fine Daily functions')
-      } catch (error) {
-          console.error('Errore durante l\'esecuzione di daily_functions:', error);
-      }
+  console.log(`Server avviato su http://localhost:${port}`);
+  daily_functions(config);
+  // Esegui la funzione ogni giorno 
+  cron.schedule('10 23 * * *', async () => {
+    try {
+      console.log('Esecuzione di daily_functions ...');
+      await daily_functions(config);
+      console.log('Fine Daily functions')
+    } catch (error) {
+      console.error('Errore durante l\'esecuzione di daily_functions:', error);
+    }
   });
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

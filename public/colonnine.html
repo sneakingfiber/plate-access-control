@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <title>Controllo Colonnine Elettriche</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -28,6 +30,7 @@
             width: 100px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
+
         .navbar a {
             display: block;
             color: #343a40;
@@ -37,9 +40,11 @@
             margin-bottom: 20px;
             transition: background-color 0.3s ease;
         }
+
         .navbar a:hover {
             background-color: #e9ecef;
         }
+
         .parking-icon {
             width: 40px;
             height: auto;
@@ -49,8 +54,9 @@
             width: 40px;
             height: auto;
         }
+
         .navbar a img {
-            transition: transform 0.2s ease; 
+            transition: transform 0.2s ease;
         }
 
         .navbar a img:hover {
@@ -61,40 +67,51 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; 
-            margin-left: 120px; 
+            height: 100vh;
+            margin-left: 120px;
         }
+
         .icon-container {
             display: flex;
-            justify-content: center; 
-            gap: 50px; 
-            flex-wrap: wrap; 
-            margin-top: 20px; 
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin-top: 20px;
         }
 
         .parking-icon {
-            width: 80px; /* Regola la dimensione delle icone */
+            width: 80px;
+            /* Regola la dimensione delle icone */
             height: auto;
-            cursor: pointer; /* Aggiunge un puntatore per l'interattività */
-            transition: transform 0.2s ease; /* Effetto di ingrandimento al passaggio del mouse */
+            cursor: pointer;
+            /* Aggiunge un puntatore per l'interattività */
+            transition: transform 0.2s ease;
+            /* Effetto di ingrandimento al passaggio del mouse */
         }
 
         .parking-icon:hover {
-            transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
+            transform: scale(1.1);
+            /* Ingrandisce leggermente l'icona al passaggio del mouse */
         }
+
         .active {
-        background-color: green;
-        color: whitesmoke;
-        font-weight: bold;
-        padding: 10px;
-        border-radius: 8px; /* Bordo arrotondato */
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Ombra leggera */
-        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transizione fluida */
+            background-color: green;
+            color: whitesmoke;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            /* Bordo arrotondato */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            /* Ombra leggera */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* Transizione fluida */
         }
 
         .active:hover {
-            transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5); /* Ombra più intensa al passaggio del mouse */
+            transform: scale(1.1);
+            /* Ingrandisce leggermente l'icona al passaggio del mouse */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5);
+            /* Ombra più intensa al passaggio del mouse */
         }
 
         .inactive {
@@ -102,24 +119,34 @@
             color: whitesmoke;
             font-weight: bold;
             padding: 10px;
-            border-radius: 8px; /* Bordo arrotondato */
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Ombra leggera */
-            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transizione fluida */
+            border-radius: 8px;
+            /* Bordo arrotondato */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            /* Ombra leggera */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* Transizione fluida */
         }
+
         .inactive:hover {
-            transform: scale(1.1); /* Ingrandisce leggermente l'icona al passaggio del mouse */
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5); /* Ombra più intensa al passaggio del mouse */
+            transform: scale(1.1);
+            /* Ingrandisce leggermente l'icona al passaggio del mouse */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5);
+            /* Ombra più intensa al passaggio del mouse */
         }
-        
+
         /* Stile per il form */
         form {
-            border: 2px solid #ccc; 
+            border: 2px solid #ccc;
             padding: 20px;
-            border-radius: 15px; /* Bordo arrotondato */
-            background-color: #f9f9f9; /* Colore di sfondo */
+            border-radius: 15px;
+            /* Bordo arrotondato */
+            background-color: #f9f9f9;
+            /* Colore di sfondo */
             width: 100%;
-            max-width: 400px; /* Larghezza massima del form */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Aggiunta di un'ombra leggera */
+            max-width: 400px;
+            /* Larghezza massima del form */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* Aggiunta di un'ombra leggera */
         }
 
         /* Pulsanti migliorati */
@@ -128,19 +155,22 @@
             border: none;
             transition: background-color 0.3s ease;
         }
+
         .btn-primary:hover {
             background-color: #0056b3;
         }
 
-        
+
         /* Responsività */
         @media (max-width: 768px) {
             .form-control {
-                font-size: 14px; /* Riduce la dimensione del testo sui dispositivi mobili */
+                font-size: 14px;
+                /* Riduce la dimensione del testo sui dispositivi mobili */
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar verticale con icone -->
     <div class="navbar">
@@ -151,143 +181,239 @@
 
     <div class="content">
         <h1>Stato Postazioni di ricarica</h1>
+
         <div class="icon-container">
-            <!-- Icone per le colonnine -->
+            <div>
+                <img src="road-barrier.png" alt="Sbarra" class="parking-icon" onclick="barriermodal(0)">
+                <div class="info"><br>Ingresso/Uscita</div>
+                <div id="status_0" style=""></div>
+            </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 1" class="parking-icon" onclick="showInfo(1)">
-                <div class="info">1<br>Stato:</div> <div id="status_1" style=""></div>
+                <div class="info">1<br>Stato:</div>
+                <div id="status_1" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 2" class="parking-icon" onclick="showInfo(2)">
-                <div class="info">2<br>Stato:</div> <div id="status_2" style=""></div>
+                <div class="info">2<br>Stato:</div>
+                <div id="status_2" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 3" class="parking-icon" onclick="showInfo(3)">
-                <div class="info">3<br>Stato:</div> <div id="status_3" style=""></div>
+                <div class="info">3<br>Stato:</div>
+                <div id="status_3" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 4" class="parking-icon" onclick="showInfo(4)">
-                <div class="info">4<br>Stato:</div> <div id="status_4" style=""></div>
+                <div class="info">4<br>Stato:</div>
+                <div id="status_4" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 5" class="parking-icon" onclick="showInfo(5)">
-                <div class="info">5<br>Stato:</div> <div id="status_5" style=""></div>
+                <div class="info">5<br>Stato:</div>
+                <div id="status_5" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 6" class="parking-icon" onclick="showInfo(6)">
-                <div class="info">6<br>Stato:</div> <div id="status_6" style=""></div>
+                <div class="info">6<br>Stato:</div>
+                <div id="status_6" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 7" class="parking-icon" onclick="showInfo(7)">
-                <div class="info">7<br>Stato</div> <div id="status_7" style=""></div>
+                <div class="info">7<br>Stato</div>
+                <div id="status_7" style=""></div>
             </div>
             <div>
                 <img src="charging-station.png" alt="Colonnina 8" class="parking-icon" onclick="showInfo(8)">
-                <div class="info">8<br>Status:</div> <div id="status_8" style=""></div>
+                <div class="info">8<br>Stato:</div>
+                <div id="status_8" style=""></div>
             </div>
         </div>
     </div>
 
     <script>
-     
-    $(document).ready(fetchData);
-    function fetchData() {
-    $.ajax({
-        url: '/charging',
-        success: function(data) {
-            console.log('Data retrieved:', data);
-            Object.entries(data).forEach(([port, status], index) => {
-                let statusElement = $('#status_' + (index + 1));
-                statusElement.text(status);
-                statusElement.removeClass('active inactive');
-                if (status === 'active') {
-                    statusElement.addClass('active');
-                } else if (status === 'inactive') {
-                    statusElement.addClass('inactive');
+
+        $(document).ready(fetchData);
+        function fetchData() {
+            $.ajax({
+                url: '/charging',
+                success: function (data) {
+                    console.log('Data retrieved:', data);
+                    Object.entries(data).forEach(([port, status], index) => {
+                        let statusElement = $('#status_' + (index + 1));
+                        statusElement.text(status);
+                        statusElement.removeClass('active inactive');
+                        if (status === 'active') {
+                            statusElement.addClass('active');
+                        } else if (status === 'inactive') {
+                            statusElement.addClass('inactive');
+                        }
+                    });
+                },
+                error: function (err) {
+                    console.error('Error retrieving data:', err);
                 }
             });
-        },
-        error: function(err) {
-            console.error('Error retrieving data:', err);
         }
-    });
-}
-    function stateRequest(id){
-        $.ajax({
-            type: 'POST',
-            url: '/change_state',
-            data: { id: id },
-            success: function(response){
-                // Ignora la risposta se non è necessaria
-                console.log('State change request sent successfully.');
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error('Request failed:', textStatus, errorThrown); // Gestione degli errori
-            }
+        function stateRequest(id) {
+            $.ajax({
+                type: 'POST',
+                url: '/change_state',
+                data: { id: id },
+                success: function (response) {
+                    console.log('State change request sent successfully.');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error('Request failed:', textStatus, errorThrown); // Gestione degli errori
+                }
             })
-        }                                                          
+        }
+        function openBar() {
+            $.ajax({
+                type: 'GET',
+                url: '/open_barrier',
+                success: function (response) {
+                    console.log('Barrier opened.');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error('Request failed:', textStatus, errorThrown); // Gestione degli errori
+                }
+            })
+        }
 
-    setInterval(function(){fetchData();console.log('data request...');},6000);
+        function openBarrier(button) {
+            const id = button.dataset.id; // ID della sbarra
+            console.log('Aprendo la sbarra:', id);
 
-    function showInfo(id) {
-        console.log('Colonnina selezionata:', id);
-        const modal = new bootstrap.Modal(document.getElementById('editModal'));
-        document.getElementById("editModalLabel").innerHTML = "Controllo Postazione: " + id +"";
-        const changeStateButton = document.querySelector('.btn-secondary'); // Seleziona il pulsante
-        changeStateButton.setAttribute('data-id', id); // Imposta data-id
-        modal.show(); 
-    }
-    function changeState(button) {
-        const id = button.dataset.id; // Recupera l'ID della colonnina
-        console.log('Cambiando stato per colonnina:', id);
-        
-        // Mostra lo spinner
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'inline-block'; // Mostra lo spinner
+            // Mostra lo spinner
+            const spinner = document.getElementById('loadingSpinnerBarrier');
+            spinner.style.display = 'inline-block';
 
-        // Disabilita il pulsante "Cambia stato" per prevenire ulteriori clic
-        button.disabled = true; 
+            // Disabilita il pulsante per evitare ulteriori clic
+            button.disabled = true;
 
-        // Nascondi il pulsante "Annulla" per prevenire la chiusura del modal
-        document.querySelector('.btn-secondary[data-bs-dismiss="modal"]').style.display = 'none';
+            // Nasconde il pulsante "Annulla" per evitare la chiusura del modal
+            document.querySelector('#openBarrierModal .btn-secondary[data-bs-dismiss="modal"]').style.display = 'none';
 
-        // Simula un caricamento di 3 secondi
-        setTimeout(() => {
-            // Nascondi lo spinner
-            spinner.style.display = 'none';
-            button.disabled = false; 
-            document.querySelector('.btn-secondary[data-bs-dismiss="modal"]').style.display = 'inline-block';
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-            modal.hide();
+            // Simula un tempo di attesa (es. 3 secondi)
+            setTimeout(() => {
+                // Nasconde lo spinner
+                spinner.style.display = 'none';
+                button.disabled = false;
+                document.querySelector('#openBarrierModal .btn-secondary[data-bs-dismiss="modal"]').style.display = 'inline-block';
 
-            stateRequest(id);
-            console.log('Stato cambiato per la colonnina:', id);
-        }, 3000); 
-    }
-    
+                // Nasconde il modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('openBarrierModal'));
+                modal.hide();
+
+                // Esegui una richiesta per aprire la barriera
+                openBar(); // Chiama la tua funzione per l’apertura
+                console.log('Sbarra aperta:', id);
+            }, 2000);
+        }
+        setInterval(function () { fetchData(); console.log('data request...'); }, 6000);
+
+        function showInfo(id) {
+            console.log('Colonnina selezionata:', id);
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            document.getElementById("editModalLabel").innerHTML = "Controllo Postazione: " + id + "";
+            const changeStateButton = document.querySelector('.btn-secondary'); // Seleziona il pulsante
+            changeStateButton.setAttribute('data-id', id); // Imposta data-id
+            modal.show();
+        }
+        function barriermodal(id) {
+            console.log('Barriera ingresso selezionata');
+            const modal = new bootstrap.Modal(document.getElementById('openBarrierModal'));
+            document.getElementById("openBarrierModalLabel").innerHTML = "Apertura sbarra";
+            const changeStateButton = document.querySelector('.btn-secondary');
+            changeStateButton.setAttribute('data-id', id);
+            modal.show();
+        }
+        function changeState(button) {
+            const id = button.dataset.id; // Recupera l'ID della colonnina
+            console.log('Cambiando stato per colonnina:', id);
+
+            // Mostra lo spinner
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = 'inline-block'; // Mostra lo spinner
+
+            // Disabilita il pulsante "Cambia stato" per prevenire ulteriori clic
+            button.disabled = true;
+
+            // Nascondi il pulsante "Annulla" per prevenire la chiusura del modal
+            document.querySelector('.btn-secondary[data-bs-dismiss="modal"]').style.display = 'none';
+
+            // Simula un caricamento di 3 secondi
+            setTimeout(() => {
+                // Nascondi lo spinner
+                spinner.style.display = 'none';
+                button.disabled = false;
+                document.querySelector('.btn-secondary[data-bs-dismiss="modal"]').style.display = 'inline-block';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                modal.hide();
+
+                stateRequest(id);
+                console.log('Stato cambiato per la colonnina:', id);
+            }, 2000);
+        }
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <!--Modal accensione spegnimento colonnine-->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel"></h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <button type="button" class="btn btn-secondary w-100" style="background-color: orange; color: black"
+                        onclick="changeState(this)" data-id="">Cambia stato <i class="fas fa-exclamation-triangle"></i>
+                        <i class="fas fa-bolt"></i></button>
+                </div>
+                <div id="loadingSpinner" class="spinner-border text-primary" role="status"
+                    style="display: none; position: absolute; top: 80%; left: 45%;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        style="background-color: red;">Annulla</button>
+                </div>
             </div>
-            <div class="modal-body">
-              <button type="button" class="btn btn-secondary w-100" style="background-color: orange; color: black" onclick="changeState(this)" data-id="">Cambia stato <i class="fas fa-exclamation-triangle"></i> <i class="fas fa-bolt"></i></button>
-            </div>
-            <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none; position: absolute; top: 80%; left: 45%;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: red;">Annulla</button>
-            </div>
-          </div>
         </div>
-      </div>
-      
+    </div>
+    <!--Modal apertura sbarra-->
+    <div class="modal fade" id="openBarrierModal" tabindex="-1" aria-labelledby="openBarrierModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="openBarrierModalLabel">Apertura Sbarra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sei sicuro di voler aprire la sbarra?</p>
+                    <button type="button" class="btn btn-primary w-100" onclick="openBarrier(this)" data-id=""
+                        style="background-color: green; color: white">
+                        Conferma Apertura <i class="fas fa-unlock-alt"></i>
+                    </button>
+                </div>
+                <div id="loadingSpinnerBarrier" class="spinner-border text-success" role="status"
+                    style="display: none; position: absolute; top: 80%; left: 45%;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        style="background-color: red;">
+                        Annulla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>

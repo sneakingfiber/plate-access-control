@@ -1,19 +1,18 @@
 {
-    
     "dbHost": "localhost",
     "dbName": "nomi_e_targhe",
     "tableName": "veicoli",
     "dbUser": "root",
     "dbPassword": "",
     "ip1": "CHANGE_ME",
-    "ip_relay":"CHANGE_ME",
-    "camerauser":"root",
+    "ip_relay": "CHANGE_ME",
+    "camerauser": "root",
     "cameraPassword": "CHANGE_ME",
-    "emailaddress":"CHANGE_ME",
-    "emailreceiver":"CHANGE_ME",
-    "emailpassword":"CHANGE_ME",
-    "smtp_port":"587",
-    "host":"mail.tophost.it"
-
-
+    "relayuser": "root",
+    "relaypassword": "CHANGE_ME",
+    "emailaddress": "CHANGE_ME",
+    "emailreceiver": "CHANGE_ME",
+    "emailpassword": "CHANGE_ME",
+    "smtp_port": "587",
+    "host": "mail.tophost.it"
 }
