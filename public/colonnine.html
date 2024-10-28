@@ -236,7 +236,7 @@
         $(document).ready(fetchData);
         function fetchData() {
             $.ajax({
-                url: '/charging',
+                url: '../endpoints/charging',
                 success: function (data) {
                     console.log('Data retrieved:', data);
                     Object.entries(data).forEach(([port, status], index) => {
@@ -258,7 +258,7 @@
         function stateRequest(id) {
             $.ajax({
                 type: 'POST',
-                url: '/change_state',
+                url: '../endpoints/change_state',
                 data: { id: id },
                 success: function (response) {
                     console.log('State change request sent successfully.');
@@ -272,7 +272,7 @@
             console.log('opening the barrier..')
             $.ajax({
                 type: 'GET',
-                url: '/open_barrier',
+                url: '../endpoints/open_barrier',
                 success: function (response) {
                     console.log('Barrier opened.');
                 },
