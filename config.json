@@ -5,6 +5,7 @@
     "dbUser": "root",
     "dbPassword": "",
     "ip1": "CHANGE_ME",
+    "": "",
     "ip_relay": "CHANGE_ME",
     "camerauser": "root",
     "cameraPassword": "CHANGE_ME",
