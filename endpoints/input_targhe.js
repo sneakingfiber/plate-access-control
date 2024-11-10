@@ -27,6 +27,7 @@ async function input_targhe(req, res) {
         const insertQuery = `INSERT INTO ${tableName} (Nome, Targa, Inizio, Fine, Colonnine) VALUES ('${name}', '${plate}', '${data_arrivo}', '${data_partenza}', '${selectedCar}')`;
         const result2 = await connection.execute(insertQuery);
         if (result2[0].affectedRows > 0) {
+
             console.log('Targa inserita con successo.');
             res.redirect('/loading_success_plate.html');
         }
@@ -34,6 +35,7 @@ async function input_targhe(req, res) {
             console.log('Errore di comunicazione con il DB.')
             res.status(500).json({ error: 'Errore nel database. Riprovare più tardi.' });
         }
+        await on_add();
     }
     catch (err) {
         console.log(err);
@@ -45,8 +47,6 @@ async function input_targhe(req, res) {
         if (connection) {
             await connection.end();  // close connection
             console.log('DB connection closed');
-            console.log('adding plate')
-            await on_add();
         }
     }
 

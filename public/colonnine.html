@@ -353,7 +353,7 @@
                 const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
                 modal.hide();
 
-                stateRequest(id);
+                stateRequest(parseInt(id, 10) + 8);
                 console.log('Stato cambiato per la colonnina:', id);
             }, 2000);
         }

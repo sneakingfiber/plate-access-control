@@ -23,7 +23,7 @@ async function open_barrier(req, res) {
         if (response.ok) {
 
             console.log('Barrier opened successfully');
-
+            console.log(response)
             res.json(result);
         } else {
             console.error('Errore nella richiesta:', response.statusText);
