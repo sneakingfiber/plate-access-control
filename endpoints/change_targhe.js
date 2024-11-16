@@ -2,22 +2,23 @@
 const InitConnection = require('../db')
 const log_err = require('../log_err')
 const config = require('../config.json');
-const check_plates_add  = require('../camera_functions');
+const {check_plates_add, relay_off}  = require('../camera_functions');
 
 
 
 
 let connection;
 let plate;
+let old_col;
 async function change_targhe(req, res) {
     try {
+        let relay_ip = [config.ip_relay];
         const tableName = config.tableName;
         connection = await InitConnection();
         console.log(req.body);
 
         const { name, data_arrivo, data_partenza, selectedCar } = req.body;
         plate = req.body.plate;
-
         // Controlla se selectedCar è un numero valido, altrimenti imposta un valore predefinito
         const colonnineValue = selectedCar ? parseInt(selectedCar, 10) : 0;
 
@@ -25,9 +26,20 @@ async function change_targhe(req, res) {
             res.status(400).json({ error: "Valore di 'Colonnine' non valido." });
             return;
         }
-
-        const insertQuery = `UPDATE ${tableName} SET Nome='${name}', Inizio='${data_arrivo}', Fine='${data_partenza}', Colonnine=${colonnineValue} WHERE Targa='${plate}';`;
-        const result2 = await connection.execute(insertQuery);
+        //////////////////////spegnimento del relay se cambiato///////
+        const sql = `SELECT Colonnine FROM veicoli WHERE Targa= ${plate} AND DATE(Inizio) <= CURDATE()`;
+        const result = await connection.execute(sql);
+        if (result[0].length > 0) {
+            const output = result[0].map(row => ({
+                Colonnine: row.Colonnine
+            }));
+            let old_col=output[0] + 8;
+            console.log(`Turning off relay ${old_col} because it changed`);
+            await Promise.all(relay_ip.map(ip => relay_off(ip,old_col)));
+        }
+        /////////////////////////////////////////////////////////////
+        const updateQuery = `UPDATE ${tableName} SET Nome='${name}', Inizio='${data_arrivo}', Fine='${data_partenza}', Colonnine=${colonnineValue} WHERE Targa='${plate}';`;
+        const result2 = await connection.execute(updateQueryQuery);
 
         if (result2[0].affectedRows > 0) {
             console.log('Targa aggiornata con successo.');
@@ -46,6 +58,7 @@ async function change_targhe(req, res) {
             console.log('DB connection closed');
             cam_ip = [config.ip1, config.ip2];
             await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
+            await Promise.all(relay_ip.map(ip => check_plates_add(ip)));
         }
     }
 }
