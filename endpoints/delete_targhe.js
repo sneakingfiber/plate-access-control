@@ -1,11 +1,12 @@
 const InitConnection = require('../db');
 const log_err = require('../log_err');
-const { on_rm } = require('../camera_functions');
+const { on_rm }  = require('../camera_functions');
 const config = require('../config.json');
 
 
 let connection;
 let plate;
+
 async function delete_targhe(req, res) {
     try {
         const tableName = config.tableName;
@@ -21,7 +22,7 @@ async function delete_targhe(req, res) {
             res.status(500).json({ error: 'Errore nel database. Riprovare più tardi.' });
         }
         console.log('deleting plate..')
-        console.log(on_rm)
+        
         await on_rm(plate);
     }
     catch (err) {

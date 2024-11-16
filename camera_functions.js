@@ -6,8 +6,7 @@ const log_err = require('./log_err');
 const http = require('http');
 const InitConnection = require('./db');
 const DigestClient = require('digest-fetch');
-const { connect } = require('http2');
-const { delete_targhe } = require('./endpoints/delete_targhe');
+
 
 async function check_plates_delete(address) {
     try {
