@@ -2,8 +2,7 @@
 const InitConnection = require('../db')
 const log_err = require('../log_err')
 const config = require('../config.json');
-const { on_rm } = require('../camera_functions');
-const { on_add } = require('../camera_functions');
+const { check_plates_add } = require('../camera_functions');
 
 
 
