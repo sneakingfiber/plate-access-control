@@ -20,7 +20,9 @@ async function delete_targhe(req, res) {
             console.log('Errore di comunicazione col DB');
             res.status(500).json({ error: 'Errore nel database. Riprovare più tardi.' });
         }
-
+        console.log('deleting plate..')
+        console.log(on_rm)
+        await on_rm(plate);
     }
     catch (err) {
         console.log(err);
@@ -28,8 +30,7 @@ async function delete_targhe(req, res) {
         throw err;
     }
     finally {
-        console.log('deleting plate..')
-        await on_rm(plate);
+        
         if (connection) {
             await connection.end();  // close connection
             console.log('DB connection closed')
