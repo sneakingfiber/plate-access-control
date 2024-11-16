@@ -45,6 +45,8 @@ async function change_targhe(req, res) {
         if (connection) {
             await connection.end();
             console.log('DB connection closed');
+            cam_ip = [config.ip1, config.ip2];
+            await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
         }
     }
 }
