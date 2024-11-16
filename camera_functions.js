@@ -254,7 +254,7 @@ async function rm_db_plate(plate) {
         }
         else {
             console.log('Errore di comunicazione col DB o targa non trovata.');
-            res.status(500).json({ error: 'Errore nel database. Riprovare più tardi.' });
+            
         }
 
     }
@@ -323,25 +323,22 @@ async function on_rm(plate) {
         cam_ip = [config.ip1, config.ip2];
         relay_ip = [config.ip_relay];
         const tableName = config.tableName;
-        for (let i = 0; i < relay_ip.lenght; i++) {
-            const checkQuery = `SELECT Targa, Colonnine FROM ${tableName} WHERE DATE(Inizio) <= CURDATE() AND DATE(Fine) > CURDATE() AND Targa = '${plate}'`;
+            const checkQuery = `SELECT Targa, Colonnine FROM ${tableName} WHERE DATE(Inizio) <= CURDATE() AND Targa = '${plate}'`;
             const result = await connection.execute(checkQuery);
-
+            console.log('on rm')
             if (result[0].length > 0) {
                 const output = result[0].map(row => ({
                     Targa: row.Targa,
                     Colonnine: row.Colonnine
                 }));
-                relay = output.Colonnine + 8;
+                relay = output[0].Colonnine + 8;
+                console.log('Turning off relay:')
+                console.log(relay)
 
-                for (let i = 0; i < relay_ip.length; i++) {
-                    await relay_off(relay_ip[i], relay);
-                }
+                await Promise.all(relay_ip.map(ip => relay_off(ip,relay)));
             }
-        }
-        for (let i = 0; i < cam_ip.length; i++) {
-            await rm_plate(cam_ip[i], plate);
-        }
+            await Promise.all(cam_ip.map(ip => rm_plate(ip,plate)));
+
         await rm_db_plate(plate);
     }
     catch (err) { console.error(err); log_err(err); }
