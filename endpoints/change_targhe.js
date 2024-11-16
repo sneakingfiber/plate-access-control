@@ -2,7 +2,7 @@
 const InitConnection = require('../db')
 const log_err = require('../log_err')
 const config = require('../config.json');
-const {check_plates_add, relay_off}  = require('../camera_functions');
+const {check_plates_add, relay_off, check_relay_activate}  = require('../camera_functions');
 
 
 
@@ -27,19 +27,19 @@ async function change_targhe(req, res) {
             return;
         }
         //////////////////////spegnimento del relay se cambiato///////
-        const sql = `SELECT Colonnine FROM veicoli WHERE Targa= ${plate} AND DATE(Inizio) <= CURDATE()`;
+        const sql = `SELECT Colonnine FROM ${tableName} WHERE Targa = '${plate}' AND DATE(Inizio) <= CURDATE()`;
         const result = await connection.execute(sql);
         if (result[0].length > 0) {
             const output = result[0].map(row => ({
                 Colonnine: row.Colonnine
             }));
-            let old_col=output[0] + 8;
+            let old_col=output[0].Colonnine + 8;
             console.log(`Turning off relay ${old_col} because it changed`);
             await Promise.all(relay_ip.map(ip => relay_off(ip,old_col)));
         }
         /////////////////////////////////////////////////////////////
         const updateQuery = `UPDATE ${tableName} SET Nome='${name}', Inizio='${data_arrivo}', Fine='${data_partenza}', Colonnine=${colonnineValue} WHERE Targa='${plate}';`;
-        const result2 = await connection.execute(updateQueryQuery);
+        const result2 = await connection.execute(updateQuery);
 
         if (result2[0].affectedRows > 0) {
             console.log('Targa aggiornata con successo.');
@@ -58,7 +58,7 @@ async function change_targhe(req, res) {
             console.log('DB connection closed');
             cam_ip = [config.ip1, config.ip2];
             await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
-            await Promise.all(relay_ip.map(ip => check_plates_add(ip)));
+            await Promise.all(relay_ip.map(ip => check_relay_activate(ip)));
         }
     }
 }
