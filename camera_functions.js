@@ -66,7 +66,7 @@ async function check_plates_add(address) {
                 const plate = output[i].Targa;
                 const relay = output[i].Colonnine;
 
-                console.log('Delete plate:', plate);
+                console.log('Adding plate:', plate);
                 await add_plate(address, plate);
                 //await relay_on(config.relay_ip, relay);
 
@@ -307,8 +307,10 @@ async function on_add() {
         addresses = [config.ip1, config.ip2, config.ip_relay];
         cam_ip = [config.ip1, config.ip2];
         relay_ip = [config.ip_relay];
-        for (let i = 0; i < relay_ip.lenght; i++) { await check_relay_activate(relay_ip[i]); }
-        for (let i = 0; i < cam_ip.lenght; i++) { await check_plates_add(cam_ip[i]); }
+        //for (let i = 0; i < relay_ip.lenght; i++) { await check_relay_activate(relay_ip[i]); }
+        //for (let i = 0; i < cam_ip.lenght; i++) { await check_plates_add(cam_ip[i]); }
+        await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
+        await Promise.all(relay_ip.map(ip => check_relay_activate(ip)));
     }
     catch (err) {
         console.error(err); log_err(err);
