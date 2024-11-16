@@ -323,23 +323,24 @@ async function on_rm(plate) {
         addresses = [config.ip1, config.ip2, config.ip_relay];
         cam_ip = [config.ip1, config.ip2];
         relay_ip = [config.ip_relay];
+        const tableName = config.tableName;
         for (let i = 0; i < relay_ip.lenght; i++) {
             const checkQuery = `SELECT Targa, Colonnine FROM ${tableName} WHERE DATE(Inizio) <= CURDATE() AND DATE(Fine) > CURDATE() AND Targa = '${plate}'`;
             const result = await connection.execute(checkQuery);
 
-            if (result[0].affectedRows > 0) {
+            if (result[0].length > 0) {
                 const output = result[0].map(row => ({
                     Targa: row.Targa,
                     Colonnine: row.Colonnine
                 }));
                 relay = output.Colonnine + 8;
 
-                for (let i = 0; i < relay_ip.lenght; i++) {
+                for (let i = 0; i < relay_ip.length; i++) {
                     await relay_off(relay_ip[i], relay);
                 }
             }
         }
-        for (let i = 0; i < cam_ip.lenght; i++) {
+        for (let i = 0; i < cam_ip.length; i++) {
             await rm_plate(cam_ip[i], plate);
         }
         await rm_db_plate(plate);
@@ -389,5 +390,6 @@ module.exports = {
     add_plate,
     rm_plate,
     check_plates_add,
-    check_plates_delete
+    check_plates_delete,
+    check_relay_activate
 };
