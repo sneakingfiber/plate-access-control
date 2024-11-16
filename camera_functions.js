@@ -387,5 +387,7 @@ module.exports = {
     relay_off,
     relay_on,
     add_plate,
-    rm_plate
+    rm_plate,
+    check_plates_add,
+    check_plates_delete
 };
