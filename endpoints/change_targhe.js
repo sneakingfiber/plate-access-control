@@ -45,8 +45,6 @@ async function change_targhe(req, res) {
         if (connection) {
             await connection.end();
             console.log('DB connection closed');
-            await on_rm(plate);
-            await on_add();
         }
     }
 }
