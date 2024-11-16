@@ -308,7 +308,7 @@ async function on_add() {
         cam_ip = [config.ip1, config.ip2];
         relay_ip = [config.ip_relay];
         for (let i = 0; i < relay_ip.lenght; i++) { await check_relay_activate(relay_ip[i]); }
-        for (let i = 0; i < relay_ip.lenght; i++) { await check_plates_add(cam_ip[i]); }
+        for (let i = 0; i < cam_ip.lenght; i++) { await check_plates_add(cam_ip[i]); }
     }
     catch (err) {
         console.error(err); log_err(err);
@@ -337,7 +337,7 @@ async function on_rm(plate) {
                 }
             }
         }
-        for (let i = 0; i < relay_ip.lenght; i++) {
+        for (let i = 0; i < cam_ip.lenght; i++) {
             await rm_plate(cam_ip[i], plate);
         }
         await rm_db_plate(plate);
@@ -357,7 +357,8 @@ async function daily_functions_add() {
     relay_ip = [config.ip_relay];
     console.log('Ping devices...')
     await check_devices(addresses);
-    for (let i = 0; i < relay_ip.length; i++) { await check_plates_add(cam_ip[i]); }
+    await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
+    //for (let i = 0; i < cam_ip.length; i++) { await check_plates_add(cam_ip[i]); }
 
 }
 async function daily_functions() {
