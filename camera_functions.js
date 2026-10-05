@@ -1,391 +1,248 @@
-const mysql = require('mysql2/promise');
-const fs = require('fs').promises;
-const { exec } = require('child_process');
+'use strict';
+// Database -> camera/relay synchronisation.
+//
+// 'use strict' matters here: this file previously assigned `connection`,
+// `addresses`, `cam_ip`, `relay_ip` and `relay` without declaring them, which
+// created implicit globals shared across every concurrent call. One function's
+// `finally` could close another's connection. Strict mode makes that a
+// ReferenceError instead of a silent data race.
+//
+// Device access goes through lib/devices.js, which applies timeouts, rethrows
+// failures instead of swallowing them, and refuses to drive the barrier port
+// through a bay-shaped call. Bay numbers are passed as bay numbers; the
+// bay-to-port mapping lives in config, not in a `+ 8` here.
+//
+// NOTE: the SQL date predicates below are preserved from the previous
+// implementation and are known to be wrong (see Phase 3): the add/activate side
+// matches every booking ever recorded rather than currently-active ones, the
+// two sides disagree (`<=` vs `=`), and revocation uses `<=` so access ends on
+// the morning of the departure day. They are corrected in the sync rewrite.
+
 const config = require('./config');
 const log_err = require('./log_err');
-const http = require('http');
-const InitConnection = require('./db');
-const DigestClient = require('digest-fetch');
+const db = require('./lib/db');
+const devices = require('./lib/devices');
 
+const TABLE = config.database.table;
 
-async function check_plates_delete(address) {
+///////////////////////////////////////////////////////////////////////////////
+// plates
+
+async function check_plates_delete(site = config.defaultSite()) {
     try {
-        relay_ip = [config.ip_relay];
-        connection = await InitConnection();
         console.log('Looking for plates to delete...');
-        const sql = `SELECT Targa, Colonnine FROM veicoli WHERE DATE(Fine) <= CURDATE()`;
-        const result = await connection.execute(sql);
-        if (result[0].length > 0) {
-            const output = result[0].map(row => ({
-                Targa: row.Targa,
-                //Colonnine: row.Colonnine
-            }));
-
-            for (let i = 0; i < output.length; i++) {
-                const plate = output[i].Targa;
-
-                console.log('Delete plate:', plate);
-                await rm_plate(address, plate);
-                await rm_db_plate(plate);
-                //console.log('Turning off', relay);
-                //console.log(relay_ip);
-                //await relay_off(relay_ip, relay);
-
-
-            }
+        const rows = await db.query(
+            `SELECT Targa, Colonnine FROM \`${TABLE}\` WHERE DATE(Fine) <= CURDATE()`);
+        if (rows.length === 0) {
+            console.log('No plates to delete...');
+            return;
         }
-        else {
-            console.log('No plates to delete...')
+        for (const row of rows) {
+            console.log('Delete plate:', row.Targa);
+            await forEachCamera(site, (camera) => devices.removePlate(camera, row.Targa));
+            await rm_db_plate(row.Targa);
         }
+    } catch (err) {
+        console.error(err);
+        log_err(err);
     }
-    catch (err) {
-        console.log(err);
-        log_err(err)
-    }
-    finally {
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
-};
-async function check_plates_add(address) {
+}
+
+async function check_plates_add(site = config.defaultSite()) {
     try {
-        connection = await InitConnection();
         console.log('Looking for plates to add...');
-        const sql = `SELECT Targa, Colonnine FROM veicoli WHERE DATE(Inizio) <= CURDATE()`;
-        const result = await connection.execute(sql);
-        if (result[0].length > 0) {
-            const output = result[0].map(row => ({
-                Targa: row.Targa,
-                Colonnine: row.Colonnine
-            }));
-
-            for (let i = 0; i < output.length; i++) {
-                const plate = output[i].Targa;
-                const relay = output[i].Colonnine;
-
-                console.log('Adding plate:', plate);
-                await add_plate(address, plate);
-                //await relay_on(config.relay_ip, relay);
-
-            }
+        const rows = await db.query(
+            `SELECT Targa, Colonnine FROM \`${TABLE}\` WHERE DATE(Inizio) <= CURDATE()`);
+        if (rows.length === 0) {
+            console.log('No plates to add...');
+            return;
         }
-        else {
-            console.log('No plates to add...')
+        for (const row of rows) {
+            console.log('Adding plate:', row.Targa);
+            await forEachCamera(site, (camera) => devices.addPlate(camera, row.Targa));
         }
-    }
-    catch (err) {
-        console.log(err);
-        log_err(err)
-    }
-    finally {
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
-};
-async function check_relay_deactivate(address) {
-    try {
-        connection = await InitConnection();
-        console.log('checking relay to turn off...');
-        const sql = `SELECT Colonnine FROM veicoli WHERE DATE(Fine) <= CURDATE()`;
-        const result = await connection.execute(sql);
-        if (result[0].length > 0) {
-            const output = result[0].map(row => row.Colonnine);
-
-            for (let i = 0; i < output.length; i++) {
-                console.log('Dectivating relay: ');
-                console.log(output[i] + 8);
-                relay_off(address, output);
-            }
-        }
-        else {
-            console.log('No relays to deactivate...')
-        }
-    }
-    catch (err) {
-        console.log(err);
-        log_err(err)
-    }
-    finally {
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
-};
-async function check_relay_activate(address) {
-    try {
-        let relay;
-        connection = await InitConnection();
-        console.log('checking relay to activate...');
-        const sql = `SELECT Colonnine FROM veicoli WHERE DATE(Inizio) = CURDATE()`;
-        const result = await connection.execute(sql);
-        if (result[0].length > 0) {
-            const output = result[0].map(row => row.Colonnine);
-
-            for (let i = 0; i < output.length; i++) {
-                console.log('Activating relay: ');
-                relay = output[i] + 8;
-                console.log(relay);
-                relay_on(address, relay);
-            }
-        }
-        else {
-            console.log('No relays to activate...')
-        }
-    }
-    catch (err) {
+    } catch (err) {
         console.error(err);
-        log_err(err)
-    }
-    finally {
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
-
-};
-async function relay_on(address, relay) {
-    try {
-        const username = config.relayuser;
-        const password = config.relaypassword;
-        const client = new DigestClient(username, password);
-
-        const url = `http://${address}/axis-cgi/io/port.cgi?action=${relay}:/`;
-
-        // Esegui la richiesta GET
-        const response = await client.fetch(url, {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            const data = await response.text();
-            console.log('Risposta:', data);
-        } else {
-            console.error('Errore nella richiesta:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Errore durante l\'esecuzione della richiesta:', error.message);
+        log_err(err);
     }
 }
-async function relay_off(address, relay) {
-    try {
-        const username = config.relayuser;
-        const password = config.relaypassword;
-        const client = new DigestClient(username, password);
 
-        const url = `http://${address}/axis-cgi/io/port.cgi?action=${relay}:%5C`;
-
-        // Esegui la richiesta GET
-        const response = await client.fetch(url, {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            const data = await response.text();
-            console.log('Risposta:', data);
-        } else {
-            console.error('Errore nella richiesta:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Errore durante l\'esecuzione della richiesta:', error.message);
-    }
-}
-async function add_plate(address, plate) {
-    try {
-        const username = config.camerauser;
-        const password = config.cameraPassword;
-        const client = new DigestClient(username, password);
-
-        const url = `http://${address}/local/fflprapp/api.cgi?api=addplate&plate=${plate}&list=allow`;
-
-        // Esegui la richiesta GET
-        const response = await client.fetch(url, {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            const data = await response.text();
-            console.log('Risposta:', data);
-        } else {
-            console.error('Errore nella richiesta:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Errore durante l\'esecuzione della richiesta:', error.message);
-    }
-}
-async function rm_plate(address, plate) {
-    try {
-        const username = config.camerauser;
-        const password = config.cameraPassword;
-        const client = new DigestClient(username, password);
-
-        const url = `http://${address}/local/fflprapp/api.cgi?api=delplate&plate=${plate}&list=allow`;
-
-        // Esegui la richiesta GET
-        const response = await client.fetch(url, {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            const data = await response.text();
-            console.log('Risposta:', data);
-        } else {
-            console.error('Errore nella richiesta:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Errore durante l\'esecuzione della richiesta:', error.message);
-    }
-}
 async function rm_db_plate(plate) {
-    try {
-        const tableName = config.tableName;
-        connection = await InitConnection();
-        console.log(plate);
-        const insertQuery = `DELETE FROM ${tableName} WHERE Targa='${plate}'`;
-        const result2 = await connection.execute(insertQuery);
-        if (result2[0].affectedRows > 0) {
-            console.log('Plate deleted successfully.');
-
-        }
-        else {
-            console.log('Errore di comunicazione col DB o targa non trovata.');
-            
-        }
-
+    const result = await db.query(
+        `DELETE FROM \`${TABLE}\` WHERE Targa = ?`, [plate]);
+    if (result.affectedRows > 0) {
+        console.log('Plate deleted successfully.');
+    } else {
+        console.log('Plate not found in the database:', plate);
     }
-    catch (err) {
-        console.log(err);
-        log_err(err);
-        throw err;
-    }
-    finally {
-        console.log('deleting plate..')
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
-
+    return result.affectedRows;
 }
-async function ping(address) {
+
+///////////////////////////////////////////////////////////////////////////////
+// charging bays
+//
+// `Colonnine` holds a bay number (1..N). It is passed straight to
+// devices.bayOn/bayOff, which resolve it to a relay port via the site's
+// bay_ports and refuse to return the barrier port. The previous code did
+// `output[i] + 8` here — and in the deactivate path passed the whole result
+// array as the port.
+
+async function check_relay_deactivate(site = config.defaultSite()) {
     try {
-        return new Promise((resolve, reject) => {
-            exec(`ping -n 1 ${address}`, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Error pinging ${address}: ${stderr}`);
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
-        });
-    }
-    catch (err) {
+        console.log('checking relay to turn off...');
+        const rows = await db.query(
+            `SELECT Colonnine FROM \`${TABLE}\` WHERE DATE(Fine) <= CURDATE()`);
+        if (rows.length === 0) {
+            console.log('No relays to deactivate...');
+            return;
+        }
+        for (const row of rows) {
+            await switchBay(site, row.Colonnine, false);
+        }
+    } catch (err) {
         console.error(err);
         log_err(err);
     }
-};
-async function check_devices(addresses) {
+}
+
+async function check_relay_activate(site = config.defaultSite()) {
     try {
-        for (let i = 0; i < addresses.length; i++) {
-            await ping(addresses[i]);
+        console.log('checking relay to activate...');
+        const rows = await db.query(
+            `SELECT Colonnine FROM \`${TABLE}\` WHERE DATE(Inizio) = CURDATE()`);
+        if (rows.length === 0) {
+            console.log('No relays to activate...');
+            return;
         }
-    }
-    catch (err) {
+        for (const row of rows) {
+            await switchBay(site, row.Colonnine, true);
+        }
+    } catch (err) {
         console.error(err);
         log_err(err);
     }
-};
-async function on_add() {
-    try {
-        addresses = [config.ip1, config.ip2, config.ip_relay];
-        cam_ip = [config.ip1, config.ip2];
-        relay_ip = [config.ip_relay];
-        //for (let i = 0; i < relay_ip.lenght; i++) { await check_relay_activate(relay_ip[i]); }
-        //for (let i = 0; i < cam_ip.lenght; i++) { await check_plates_add(cam_ip[i]); }
-        await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
-        await Promise.all(relay_ip.map(ip => check_relay_activate(ip)));
-    }
-    catch (err) {
-        console.error(err); log_err(err);
-    }
-    finally { console.log('adding process completed') };
 }
-async function on_rm(plate) {
+
+// One bay's state change. A bad bay number is reported and skipped rather than
+// aborting the whole run — one corrupt row should not stop the nightly sync.
+async function switchBay(site, bay, on) {
     try {
-        let connection = await InitConnection();
-        addresses = [config.ip1, config.ip2, config.ip_relay];
-        cam_ip = [config.ip1, config.ip2];
-        relay_ip = [config.ip_relay];
-        const tableName = config.tableName;
-            const checkQuery = `SELECT Targa, Colonnine FROM ${tableName} WHERE DATE(Inizio) <= CURDATE() AND Targa = '${plate}'`;
-            const result = await connection.execute(checkQuery);
-            console.log('on rm')
-            if (result[0].length > 0) {
-                const output = result[0].map(row => ({
-                    Targa: row.Targa,
-                    Colonnine: row.Colonnine
-                }));
-                relay = output[0].Colonnine + 8;
-                console.log('Turning off relay:')
-                console.log(relay)
+        console.log(`${on ? 'Activating' : 'Deactivating'} bay ${bay} ` +
+            `(port ${config.resolveBayPort(site, bay)})`);
+        await (on ? devices.bayOn(site, bay) : devices.bayOff(site, bay));
+    } catch (err) {
+        console.error(`bay ${bay} on site "${site.id}":`, err.message);
+        log_err(`bay ${bay} on site "${site.id}": ${err.message}`);
+    }
+}
 
-                await Promise.all(relay_ip.map(ip => relay_off(ip,relay)));
-            }
-            await Promise.all(cam_ip.map(ip => rm_plate(ip,plate)));
+///////////////////////////////////////////////////////////////////////////////
+// per-booking hooks, called by the endpoints
 
+async function on_add(site = config.defaultSite()) {
+    try {
+        await check_plates_add(site);
+        await check_relay_activate(site);
+    } catch (err) {
+        console.error(err);
+        log_err(err);
+    } finally {
+        console.log('adding process completed');
+    }
+}
+
+// Looks up the booking's bay BEFORE deleting the row, so the relay is switched
+// by bay number rather than being handed the plate string.
+async function on_rm(plate, site = config.defaultSite()) {
+    try {
+        const rows = await db.query(
+            `SELECT Targa, Colonnine FROM \`${TABLE}\` ` +
+            'WHERE DATE(Inizio) <= CURDATE() AND Targa = ?', [plate]);
+        if (rows.length > 0) {
+            await switchBay(site, rows[0].Colonnine, false);
+        }
+        await forEachCamera(site, (camera) => devices.removePlate(camera, plate));
         await rm_db_plate(plate);
+    } catch (err) {
+        console.error(err);
+        log_err(err);
+    } finally {
+        console.log('removing process completed');
     }
-    catch (err) { console.error(err); log_err(err); }
-    finally {
-        console.log('removing process completed')
-        await connection.end();
-    }
-
 }
-async function daily_functions_add() {
-    console.log('Starting daily functions add...');
-    console.log('Testing devices connection...');
-    addresses = [config.ip1, config.ip2, config.ip_relay];
-    cam_ip = [config.ip1, config.ip2];
-    relay_ip = [config.ip_relay];
-    console.log('Ping devices...')
-    await check_devices(addresses);
-    await Promise.all(cam_ip.map(ip => check_plates_add(ip)));
-    //for (let i = 0; i < cam_ip.length; i++) { await check_plates_add(cam_ip[i]); }
 
+///////////////////////////////////////////////////////////////////////////////
+// helpers
+
+// Applies an operation to every camera at a site. A failure on one camera is
+// logged and the others still run, but it is never silent. The previous code
+// iterated the relay list while indexing the camera list, so a site's second
+// camera was never reached.
+async function forEachCamera(site, fn) {
+    const results = await Promise.allSettled(site.cameras.map(fn));
+    results.forEach((result, i) => {
+        if (result.status === 'rejected') {
+            const address = site.cameras[i].address;
+            console.error(`camera ${address}:`, result.reason.message);
+            log_err(`camera ${address}: ${result.reason.message}`);
+        }
+    });
+    return results;
 }
-async function daily_functions() {
-    console.log('Starting daily functions add...');
-    console.log('Testing devices connection...');
-    addresses = [config.ip1, config.ip2, config.ip_relay];
-    cam_ip = [config.ip1, config.ip2];
-    relay_ip = [config.ip_relay];
-    console.log('Ping devices...')
-    await check_devices(addresses);
+
+async function check_devices(site = config.defaultSite()) {
+    const results = await devices.siteReachability(site);
+    results.forEach(({ role, address, up }) => {
+        console.log(`  ${up ? 'up  ' : 'DOWN'} ${role} ${address}`);
+        if (!up) log_err(`${role} ${address} is unreachable`);
+    });
+    return results;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// scheduled entry points
+
+async function daily_functions_add(site = config.defaultSite()) {
+    console.log(`Starting daily add for site "${site.id}"...`);
+    await check_devices(site);
+    await check_plates_add(site);
+}
+
+async function daily_functions(site = config.defaultSite()) {
+    console.log(`Starting daily sync for site "${site.id}"...`);
+    await check_devices(site);
     console.log('CHECK RELAYS TO TURN OFF');
-    for (let i = 0; i < relay_ip.length; i++) { await check_relay_deactivate(relay_ip[i]); }
+    await check_relay_deactivate(site);
     console.log('CHECK RELAYS TO TURN ON');
-    for (let i = 0; i < relay_ip.length; i++) { await check_relay_activate(relay_ip[i]); }
+    await check_relay_activate(site);
     console.log('CHECK PLATES TO DELETE');
-    for (let i = 0; i < cam_ip.length; i++) { await check_plates_delete(cam_ip[i]); }
-    //for (let i = 0; i < relay_ip.length; i++) { await check_plates_add(cam_ip[i]); }
+    await check_plates_delete(site);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Compatibility shims for endpoints not yet migrated to the site-aware API.
+// `relay` here is a BAY number, matching how change_state calls it.
+
+const relay_on = (_address, bay, site = config.defaultSite()) => devices.bayOn(site, bay);
+const relay_off = (_address, bay, site = config.defaultSite()) => devices.bayOff(site, bay);
+const add_plate = (_address, plate, site = config.defaultSite()) =>
+    forEachCamera(site, (camera) => devices.addPlate(camera, plate));
+const rm_plate = (_address, plate, site = config.defaultSite()) =>
+    forEachCamera(site, (camera) => devices.removePlate(camera, plate));
+
 module.exports = {
     daily_functions,
     daily_functions_add,
     on_add,
     on_rm,
-    relay_off,
-    relay_on,
-    add_plate,
-    rm_plate,
+    rm_db_plate,
     check_plates_add,
     check_plates_delete,
-    check_relay_activate
+    check_relay_activate,
+    check_relay_deactivate,
+    check_devices,
+    relay_on,
+    relay_off,
+    add_plate,
+    rm_plate,
 };

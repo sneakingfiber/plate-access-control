@@ -1,39 +1,17 @@
-const log_err = require('../log_err')
+'use strict';
 const config = require('../config');
-const DigestClient = require('digest-fetch');
+const devices = require('../lib/devices');
 
-
+// NOTE (Phase 5): still reachable unauthenticated, and still a GET, so an
+// <img> tag or a prefetch can open the gate. Becomes an authenticated POST
+// with CSRF protection and an audit record.
 async function open_barrier(req, res) {
-    try {
-        console.log('Opening barrier..');
-
-        const ip_address = config.ip_relay; // Assicurati che questo sia impostato correttamente
-        const username = config.relayuser;  // Nome utente per l'autenticazione
-        const password = config.relaypassword; // Password per l'autenticazione
-
-        // Crea un client per l'autenticazione Digest
-        const client = new DigestClient(username, password);
-        const url = `http://${ip_address}/axis-cgi/io/port.cgi?action=1:/2000%5C`;
-
-        // Esegui la richiesta GET
-        const response = await client.fetch(url, {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-
-            console.log('Barrier opened successfully');
-
-            res.json({ ok: true });
-        } else {
-            console.error('Errore nella richiesta:', response.statusText);
-            res.status(response.status).send('Internal Server Error');
-        }
-    } catch (err) {
-        console.error('Failed to open the barrier');
-        log_err('Failed to open the barrier')
-        res.status(500).send('Internal Server Error');
-    }
+    const site = config.getSite(req.query.site || req.body.site);
+    console.log(`Opening barrier on site "${site.id}" ` +
+        `(port ${site.relay.barrier_port}, ${site.relay.barrier_pulse_ms}ms)`);
+    await devices.pulseBarrier(site);
+    console.log('Barrier opened successfully');
+    res.json({ ok: true });
 }
 
 module.exports = { open_barrier };

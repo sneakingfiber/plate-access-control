@@ -1,37 +1,22 @@
-const InitConnection = require('../db')
-const log_err = require('../log_err')
+'use strict';
 const config = require('../config');
+const db = require('../lib/db');
 
+const TABLE = config.database.table;
 
-let connection;
+// Bays already taken for the requested range.
+//
+// NOTE (Phase 3): this overlap test misses a booking entirely contained within
+// the requested range, so such a bay is reported free and can be double-booked.
+// The correct predicate is `Inizio <= :departure AND Fine >= :arrival`.
 async function check_posti(req, res) {
-    try {
-        const tableName = config.tableName;
-        connection = await InitConnection();
-        console.log('checking free spots...')
-        const { data_arrivo, data_partenza } = req.body;
-        const sql = `SELECT Colonnine FROM ${tableName} WHERE ('${data_arrivo}' BETWEEN Inizio AND Fine)
-    OR ('${data_partenza}' BETWEEN Inizio AND Fine)`;
-        //AND Targa != '${plate}'
-        const result = await connection.execute(sql);
-        if (result[0].length > 0) {
-            const output = result[0].map(row => row.Colonnine);
-            res.json(output);
-        }
-        else {
-            res.json([]); // No result found return an empty array
-        }
-    }
-    catch (err) {
-        console.log(err);
-        log_err(err)
-    }
-    finally {
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
+    const { data_arrivo, data_partenza } = req.body;
+    console.log('checking free spots...');
+    const rows = await db.query(
+        `SELECT Colonnine FROM \`${TABLE}\` ` +
+        'WHERE (? BETWEEN Inizio AND Fine) OR (? BETWEEN Inizio AND Fine)',
+        [data_arrivo, data_partenza]);
+    res.json(rows.map((row) => row.Colonnine));
 }
-module.exports = { check_posti };
 
+module.exports = { check_posti };

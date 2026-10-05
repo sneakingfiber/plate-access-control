@@ -1,38 +1,20 @@
-const InitConnection = require('../db')
-const log_err = require('../log_err')
-let connection;
+'use strict';
 const config = require('../config');
+const db = require('../lib/db');
 
+const TABLE = config.database.table;
+
+// As check_posti, but excludes the booking being edited. Carries the same
+// overlap-predicate flaw, corrected in Phase 3.
 async function check_posti_modal(req, res) {
-    try {
-        connection = await InitConnection();
-        const tableName = config.tableName;
-        console.log('checking free spots...')
-        const { plate, data_arrivo, data_partenza } = req.body;
-        console.log(plate);
-        const sql = `SELECT Colonnine 
-    FROM ${tableName} 
-    WHERE Targa != '${plate}' 
-    AND (('${data_arrivo}' BETWEEN Inizio AND Fine) OR ('${data_partenza}' BETWEEN Inizio AND Fine))`;
-        const result = await connection.execute(sql);
-        if (result[0].length > 0) {
-            const output = result[0].map(row => row.Colonnine);
-            console.log(output)
-            res.json(output);
-        }
-        else {
-            res.json([]); // No result found return an empty array
-        }
-    }
-    catch (err) {
-        console.log(err);
-        log_err(err)
-    }
-    finally {
-        if (connection) {
-            await connection.end();  // close connection
-            console.log('DB connection closed')
-        }
-    }
+    const { plate, data_arrivo, data_partenza } = req.body;
+    console.log('checking free spots...');
+    const rows = await db.query(
+        `SELECT Colonnine FROM \`${TABLE}\` ` +
+        'WHERE Targa <> ? ' +
+        'AND ((? BETWEEN Inizio AND Fine) OR (? BETWEEN Inizio AND Fine))',
+        [plate, data_arrivo, data_partenza]);
+    res.json(rows.map((row) => row.Colonnine));
 }
+
 module.exports = { check_posti_modal };
