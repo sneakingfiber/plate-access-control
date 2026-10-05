@@ -1,18 +1,22 @@
 'use strict';
-const { on_rm } = require('../camera_functions');
+const config = require('../config');
+const sync = require('../lib/sync');
+const { validatePlate } = require('../lib/validate');
+const { badRequest, notFound } = require('../middleware/app_error');
 
-// on_rm removes the plate from the cameras, switches its bay off and deletes
-// the row, in that order, because it needs the booking's bay before the row
-// goes. This handler previously sent no response on any path.
+// removeBooking takes the plate off the cameras, switches its bay off unless
+// another live booking occupies it, then deletes the row — in that order,
+// because the bay is only knowable before the row goes.
 async function delete_targhe(req, res) {
-    const plate = req.body.plate;
-    if (!plate) {
-        res.status(400).json({ error: 'PLATE_REQUIRED' });
-        return;
-    }
-    await on_rm(plate);
-    console.log('Targa cancellata con successo.');
-    res.json({ ok: true });
+    const site = config.getSite(req.body.site);
+    const check = validatePlate(req.body.plate);
+    if (!check.ok) throw badRequest(check.code);
+
+    const { deleted, bay } = await sync.removeBooking(check.value, site);
+    if (deleted === 0) throw notFound('PLATE_NOT_FOUND');
+
+    console.log('Targa cancellata con successo:', check.value);
+    res.json({ ok: true, bay });
 }
 
 module.exports = { delete_targhe };

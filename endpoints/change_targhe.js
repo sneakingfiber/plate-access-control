@@ -1,32 +1,42 @@
 'use strict';
 const config = require('../config');
 const db = require('../lib/db');
-const { on_rm, on_add } = require('../camera_functions');
+const sync = require('../lib/sync');
+const { validateBooking } = require('../lib/validate');
+const { badRequest, notFound } = require('../middleware/app_error');
 
 const TABLE = config.database.table;
 
-// The success path previously sent no response at all, so the browser hung and
-// only the UI's own reload hid it. The device sync also ran from `finally`,
-// meaning a failed UPDATE still pushed changes to the cameras.
+// Called over AJAX, so it answers in JSON. The plate itself is read-only in the
+// edit modal; name, dates and bay may change.
 async function change_targhe(req, res) {
-    const { name, data_arrivo, data_partenza, selectedCar } = req.body;
-    const plate = req.body.plate;
+    const site = config.getSite(req.body.site);
+    const check = validateBooking(req.body, site.relay.bay_ports);
+    if (!check.ok) throw badRequest('VALIDATION_FAILED', check.errors);
+
+    const { name, plate, data_arrivo, data_partenza, selectedCar } = check.value;
+
+    const before = await db.query(
+        `SELECT Colonnine FROM \`${TABLE}\` WHERE Targa = ?`, [plate]);
+    if (before.length === 0) throw notFound('PLATE_NOT_FOUND');
+    const previousBay = Number(before[0].Colonnine);
 
     const result = await db.query(
-        `UPDATE \`${TABLE}\` SET Nome = ?, Inizio = ?, Fine = ?, Colonnine = ? ` +
-        'WHERE Targa = ?',
+        `UPDATE \`${TABLE}\` SET Nome = ?, Inizio = ?, Fine = ?, Colonnine = ? WHERE Targa = ?`,
         [name, data_arrivo, data_partenza, selectedCar, plate]);
 
-    if (result.affectedRows === 0) {
-        res.status(404).json({ error: 'PLATE_NOT_FOUND' });
-        return;
-    }
+    console.log('Targa aggiornata con successo:', plate);
+    res.json({ ok: true, changed: result.affectedRows });
 
-    console.log('Targa aggiornata con successo.');
-    res.json({ ok: true });
-
-    // Re-sync only after a successful update.
-    on_rm(plate).then(() => on_add()).catch(() => {});
+    // Re-sync only after a successful update, and only this record. If the bay
+    // moved, the old one is switched off first — removeBooking is not used here
+    // because it would delete the row we just updated.
+    (async () => {
+        if (previousBay && previousBay !== selectedCar) {
+            await sync.releaseBay(previousBay, plate, site).catch(() => {});
+        }
+        await sync.addBooking(plate, selectedCar, site);
+    })().catch(() => {});
 }
 
 module.exports = { change_targhe };

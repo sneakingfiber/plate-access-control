@@ -160,3 +160,57 @@ Add further entries to `sites`. Each has its own cameras, relay and wiring:
 
 With one site configured the UI hides the site selector, so a single-gate
 install does not look multi-site.
+
+## Synchronisation
+
+MySQL is the source of truth; the cameras hold a derived allow-list. Keeping the
+two aligned is "reconciliation", and it runs nightly at 00:10 per site, or on
+demand:
+
+```bash
+curl -X POST http://localhost:3000/endpoints/sync -d 'site=sede1'
+```
+
+The planning step is a pure function (`lib/sync_plan.js`): given the bookings, a
+date and a site it returns exactly which plates to add and remove and which bays
+to switch, without touching anything. Execution is separate. That split exists
+because every past failure in this feature was a mistake about *what* to do
+rather than about doing it.
+
+### What counts as active
+
+A booking is live from `Inizio` to `Fine` **inclusive**, so a guest can still
+drive out on their departure day. It is revoked only once the date is strictly
+past `Fine`. A booking whose `Inizio` is in the future is neither provisioned nor
+revoked.
+
+Two cases worth knowing, both of which the planner handles explicitly:
+
+- If a plate has an expired booking *and* a current one, it is kept — the guest
+  rebooked.
+- If a bay's previous booking expired but another live booking now occupies it,
+  the bay is **not** switched off, so the new guest's charger keeps working.
+
+### `sync.mode`
+
+| Mode | Behaviour |
+|---|---|
+| `off` | Plan is computed and logged; no device calls. |
+| `dryrun` | Same as `off`. The default — run it first and read the log. |
+| `live` | The plan is applied. |
+
+`sync.max_adds_per_run` caps how many plates one live run may add. Exceeding it
+aborts the run rather than mass-pushing, which is a guard against a
+misconfiguration or a bad date predicate provisioning the whole table. The mode
+and the cap come from configuration only, never from the request.
+
+The camera's own allow-list is currently treated as **unknown**, because the LPR
+application's verb for enumerating a list is not confirmed. The planner therefore
+adds every active plate and removes every expired one instead of diffing, which
+is idempotent but does more calls than strictly necessary. If that read is
+implemented later, it must return `null` on failure and never an empty array — an
+empty array reads as "nothing is provisioned".
+
+Plates added by hand through a camera's own web interface are reported but left
+alone, since they are indistinguishable from stale entries and removing one locks
+somebody out.

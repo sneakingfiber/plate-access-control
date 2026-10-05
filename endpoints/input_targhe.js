@@ -1,20 +1,25 @@
 'use strict';
 const config = require('../config');
 const db = require('../lib/db');
-const { on_add } = require('../camera_functions');
+const sync = require('../lib/sync');
+const { validateBooking } = require('../lib/validate');
 
 const TABLE = config.database.table;
 
-function processPlate(plate) {
-    // Remove special chars and put every letter in uppercase
-    return String(plate).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-}
-
-// NOTE (Phase 3): check-then-insert still races without a UNIQUE index on
-// Targa, and name/dates/bay are not yet validated server-side.
+// Reached by a real form POST from targhe.html, so failures redirect rather than
+// returning JSON the browser would render raw. The error code travels in the
+// query string for the UI to surface (Phase 6 renders it in the active
+// language).
 async function input_targhe(req, res) {
-    const { name, data_arrivo, data_partenza, selectedCar } = req.body;
-    const plate = processPlate(req.body.plate);
+    const site = config.getSite(req.body.site);
+    const check = validateBooking(req.body, site.relay.bay_ports);
+    if (!check.ok) {
+        const first = check.errors[0];
+        console.warn('rejected booking:', check.errors.map((e) => e.code).join(', '));
+        res.redirect(`/targhe.html?error=${encodeURIComponent(first.code)}`);
+        return;
+    }
+    const { name, plate, data_arrivo, data_partenza, selectedCar } = check.value;
 
     const existing = await db.query(
         `SELECT Targa FROM \`${TABLE}\` WHERE Targa = ?`, [plate]);
@@ -24,22 +29,19 @@ async function input_targhe(req, res) {
     }
 
     const result = await db.query(
-        `INSERT INTO \`${TABLE}\` (Nome, Targa, Inizio, Fine, Colonnine) ` +
-        'VALUES (?, ?, ?, ?, ?)',
+        `INSERT INTO \`${TABLE}\` (Nome, Targa, Inizio, Fine, Colonnine) VALUES (?, ?, ?, ?, ?)`,
         [name, plate, data_arrivo, data_partenza, selectedCar]);
-
     if (result.affectedRows === 0) {
-        res.status(500).json({ error: 'DB_WRITE_FAILED' });
+        res.redirect('/targhe.html?error=DB_WRITE_FAILED');
         return;
     }
 
-    console.log('Targa inserita con successo.');
+    console.log('Targa inserita con successo:', plate);
     res.redirect('/loading_success_plate.html');
 
-    // Device sync runs after the operator has been answered: a slow or
-    // unreachable camera must not hold up the response. Failures are logged by
-    // on_add itself.
-    on_add().catch(() => {});
+    // Pushes only the record just created, after the operator has been answered.
+    // A slow camera must not hold up the response, and failures are logged.
+    sync.addBooking(plate, selectedCar, site).catch(() => {});
 }
 
-module.exports = { input_targhe, processPlate };
+module.exports = { input_targhe };
