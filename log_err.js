@@ -1,10 +1,10 @@
+'use strict';
 const moment = require('moment');
 const fs = require('fs').promises;
 const nodemailer = require('nodemailer');
 const config = require('./config');
-const email_address = config.emailaddress;
-const receiver = config.emailreceiver;
-const email_pw = config.emailpassword;
+
+const LOG_FILE = 'errors_log.txt';
 
 async function log_err(err_message) {
   const current_time = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -12,10 +12,10 @@ async function log_err(err_message) {
   // Scrittura su file ed invio email sono indipendenti: se il file non e'
   // scrivibile la notifica deve partire comunque.
   try {
-    await fs.appendFile('errors_log.txt', `${form_err}\n`);
+    await fs.appendFile(LOG_FILE, `${form_err}\n`);
   }
   catch (error) {
-    console.error('Impossibile scrivere errors_log.txt:', error);
+    console.error(`Impossibile scrivere ${LOG_FILE}:`, error);
   }
   try {
     sendEmail(form_err);
@@ -25,28 +25,32 @@ async function log_err(err_message) {
   }
 }
 
+// Honours config.mail.enabled: a general-purpose install should not need an
+// SMTP account, and the previous version built a transport and attempted a
+// connection unconditionally.
+//
+// NOTE (Phase 8): still unthrottled — one unreachable device at sync time means
+// one email per plate. Needs dedup by message hash with an hourly cap.
 function sendEmail(err_message) {
+  const mail = config.mail;
+  if (!mail.enabled) return;
+
   try {
     const transporter = nodemailer.createTransport({
-      host: config.host,
-      port: config.smtp_port,
+      host: mail.host,
+      port: mail.port,
       secure: false,
-      auth: {
-        user: config.emailaddress,
-        pass: config.emailpassword,
-      },
+      auth: { user: mail.user, pass: mail.password },
     });
 
-    const mailOptions = {
-      from: config.emailaddress,
-      to: config.emailreceiver,
-      subject: 'ParkingLot Error Notification',
+    transporter.sendMail({
+      from: mail.from || mail.user,
+      to: mail.to,
+      subject: 'Plate Access Control - Error Notification',
       text: err_message,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
+    }, (error, info) => {
       if (error) {
-        console.error("Error while sending email:", error);
+        console.error('Error while sending email:', error);
       } else {
         console.log('Email sent: ' + info.response);
       }

@@ -13,12 +13,12 @@
   },
   "mail": {
     "enabled": false,
-    "host": "",
+    "host": "smtp.example.com",
     "port": 587,
-    "user": "",
+    "user": "alerts@example.com",
     "password": "",
-    "from": "",
-    "to": ""
+    "from": "alerts@example.com",
+    "to": "admin@example.com"
   },
   "sync": {
     "mode": "dryrun",
@@ -30,14 +30,27 @@
       "id": "sede1",
       "name": "CHANGE_ME",
       "cameras": [
-        { "address": "CHANGE_ME", "user": "root", "password": "CHANGE_ME" }
+        {
+          "address": "CHANGE_ME",
+          "user": "root",
+          "password": "CHANGE_ME"
+        }
       ],
       "relay": {
         "address": "CHANGE_ME",
         "user": "root",
         "password": "CHANGE_ME",
         "barrier_port": 1,
-        "bay_ports": [9, 10, 11, 12, 13, 14, 15, 16],
+        "bay_ports": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
         "barrier_pulse_ms": 2000
       }
     }
