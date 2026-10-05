@@ -24,7 +24,7 @@ async function open_barrier(req, res) {
 
             console.log('Barrier opened successfully');
 
-            res.json(result);
+            res.json({ ok: true });
         } else {
             console.error('Errore nella richiesta:', response.statusText);
             res.status(response.status).send('Internal Server Error');

@@ -1,18 +1,23 @@
 const moment = require('moment');
-const fs = require('fs');
+const fs = require('fs').promises;
 const nodemailer = require('nodemailer');
 const config = require('./config.json');
 const email_address = config.emailaddress;
 const receiver = config.emailreceiver;
 const email_pw = config.emailpassword;
 
-function log_err(err_message) {
+async function log_err(err_message) {
+  const current_time = moment().format('YYYY-MM-DD HH:mm:ss');
+  const form_err = `${current_time} - ${err_message}`;
+  // Scrittura su file ed invio email sono indipendenti: se il file non e'
+  // scrivibile la notifica deve partire comunque.
   try {
-    const current_time = moment().format('YYYY-MM-DD HH:mm:ss');
-    const form_err = `${current_time} - ${err_message}`;
-    fs.appendFile('errors_log.txt', `${form_err}\n`, (err) => {
-      if (err) throw err;
-    });
+    await fs.appendFile('errors_log.txt', `${form_err}\n`);
+  }
+  catch (error) {
+    console.error('Impossibile scrivere errors_log.txt:', error);
+  }
+  try {
     sendEmail(form_err);
   }
   catch (error) {
