@@ -1,19 +1,45 @@
 {
-    "dbHost": "localhost",
-    "dbName": "nomi_e_targhe",
-    "tableName": "veicoli",
-    "dbUser": "root",
-    "dbPassword": "",
-    "ip1": "CHANGE_ME",
-    "ip2": "CHANGE_ME",
-    "ip_relay": "CHANGE_ME",
-    "camerauser": "root",
-    "cameraPassword": "CHANGE_ME",
-    "relayuser": "root",
-    "relaypassword": "CHANGE_ME",
-    "emailaddress": "CHANGE_ME",
-    "emailreceiver": "CHANGE_ME",
-    "emailpassword": "CHANGE_ME",
-    "smtp_port": "587",
-    "host": "mail.tophost.it"
+  "server": {
+    "port": 3000,
+    "language": "it"
+  },
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "name": "CHANGE_ME",
+    "user": "CHANGE_ME",
+    "password": "CHANGE_ME",
+    "table": "veicoli"
+  },
+  "mail": {
+    "enabled": false,
+    "host": "",
+    "port": 587,
+    "user": "",
+    "password": "",
+    "from": "",
+    "to": ""
+  },
+  "sync": {
+    "mode": "dryrun",
+    "max_adds_per_run": 25,
+    "device_timeout_ms": 5000
+  },
+  "sites": [
+    {
+      "id": "sede1",
+      "name": "CHANGE_ME",
+      "cameras": [
+        { "address": "CHANGE_ME", "user": "root", "password": "CHANGE_ME" }
+      ],
+      "relay": {
+        "address": "CHANGE_ME",
+        "user": "root",
+        "password": "CHANGE_ME",
+        "barrier_port": 1,
+        "bay_ports": [9, 10, 11, 12, 13, 14, 15, 16],
+        "barrier_pulse_ms": 2000
+      }
+    }
+  ]
 }

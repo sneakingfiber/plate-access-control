@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
 const fs = require('fs').promises;
 const { exec } = require('child_process');
-const config = require('./config.json');
+const config = require('./config');
 const log_err = require('./log_err');
 const http = require('http');
 const InitConnection = require('./db');

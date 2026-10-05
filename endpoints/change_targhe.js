@@ -1,7 +1,7 @@
 
 const InitConnection = require('../db')
 const log_err = require('../log_err')
-const config = require('../config.json');
+const config = require('../config');
 const {check_plates_add, relay_off, check_relay_activate}  = require('../camera_functions');
 
 

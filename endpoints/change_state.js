@@ -1,5 +1,5 @@
 const log_err = require('../log_err')
-const config = require('../config.json');
+const config = require('../config');
 const http = require('http');
 const { relay_off } = require('../camera_functions');
 const { relay_on } = require('../camera_functions');

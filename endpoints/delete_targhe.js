@@ -1,7 +1,7 @@
 const InitConnection = require('../db');
 const log_err = require('../log_err');
 const { on_rm }  = require('../camera_functions');
-const config = require('../config.json');
+const config = require('../config');
 
 
 let connection;

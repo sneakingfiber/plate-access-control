@@ -1,7 +1,7 @@
 const InitConnection = require('../db')
 const log_err = require('../log_err')
 let connection;
-const config = require('../config.json');
+const config = require('../config');
 
 async function check_posti_modal(req, res) {
     try {

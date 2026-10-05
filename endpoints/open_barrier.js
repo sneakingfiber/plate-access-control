@@ -1,5 +1,5 @@
 const log_err = require('../log_err')
-const config = require('../config.json');
+const config = require('../config');
 const DigestClient = require('digest-fetch');
 
 
