@@ -13,6 +13,7 @@ function fetchData() {
             }
             $('#errorBanner').text(response.error).show();
             response.forEach(function (item) {
+                console.log(item.Inizio);
                 var listItem = $('<tr></tr>');
                 date1 = new Date(item.Inizio).toISOString().split('T')[0];
                 date2 = new Date(item.Fine).toISOString().split('T')[0];
@@ -61,7 +62,7 @@ $(document).ready(function () {
 
 function validateForm() {
     var name = document.getElementById('modalNome').value;
-    var selectedCar = document.getElementById('selectedCar').value;;
+    var selectedCar = document.getElementById('selectedCar').value;
     if (name.length > 20) {
         errorMessage = 'Il nome non può avere più di 20 caratteri.';
         document.getElementById('nameError').innerText = errorMessage;
@@ -69,7 +70,8 @@ function validateForm() {
     }
     else { document.getElementById('nameError').innerText = ''; }
     if (!selectedCar) {
-        alert('Seleziona una colonnina prima di inviare il modulo.');
+        errorMessage = 'Selezionare una colonnina prima di confermare.';
+        document.getElementById('chargingError').innerText = errorMessage;
         return false; // blocca l'invio del modulo
     }
     return true; // consente l'invio del modulo
@@ -87,10 +89,13 @@ function checkDates() {
 
     if (startDate > endDate) {
         dateError.innerText = 'La data di inizio non può essere successiva alla data di fine';
+        return false;
     } else if (endDate - startDate > 30 * 24 * 60 * 60 * 1000) {
         dateError.innerText = 'La durata non può superare un mese';
+        return false;
     } else if (startDate < yesterday || endDate < yesterday) {
         dateError.innerText = 'Le date non possono essere nel passato';
+        return false;
     } else {
         dateError.innerText = ''; // Clear error message
     }
@@ -140,7 +145,6 @@ function selectCar(carNumber) {
     document.querySelectorAll('.car-icon').forEach(container => {
         container.classList.remove('selected');
     });
-
     document.querySelector(`.car-icon:nth-child(${carNumber})`).classList.add('selected');
     document.getElementById('selectedCar').value = carNumber;
 }

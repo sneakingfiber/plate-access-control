@@ -3,6 +3,7 @@ const http = require('http');
 const config = require('../config.json')
 const DigestClient = require('digest-fetch');
 
+
 async function checkactive(req, res) {
     try {
         const ip_address = config.ip_relay;
@@ -10,7 +11,7 @@ async function checkactive(req, res) {
         const password = config.relaypassword;
         const client = new DigestClient(username, password);
 
-        const url = `http://${ip_address}/axis-cgi/io/port.cgi?checkactive=1,9,10,11,12,13,14,15,16`;
+        const url = `http://${ip_address}/axis-cgi/io/port.cgi?checkactive=9,10,11,12,13,14,15,16`;
 
         // Esegui la richiesta GET
         const response = await client.fetch(url, {

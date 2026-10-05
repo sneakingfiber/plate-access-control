@@ -10,8 +10,6 @@ async function check_posti_modal(req, res) {
         console.log('checking free spots...')
         const { plate, data_arrivo, data_partenza } = req.body;
         console.log(plate);
-        //const sql=`SELECT Colonnine FROM veicoli WHERE Targa !='${plate}' AND ('${data_arrivo}' BETWEEN Inizio AND Fine)
-        //OR ('${data_partenza}' BETWEEN Inizio AND Fine)  `;
         const sql = `SELECT Colonnine 
     FROM ${tableName} 
     WHERE Targa != '${plate}' 
